@@ -1,0 +1,24 @@
+# Build outputs
+target/
+frontend/dist/
+frontend/node_modules/
+node_modules/
+*.class
+*.jar
+*.war
+
+# Logs and system generated
+*.log
+.system_generated/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.settings/
+.classpath
+
+# OS files
+.DS_Store
+Thumbs.db

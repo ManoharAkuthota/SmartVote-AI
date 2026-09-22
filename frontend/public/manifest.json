@@ -1,0 +1,21 @@
+{
+  "short_name": "SmartVote",
+  "name": "SmartVote AI - Cryptographic Voting System",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#030712",
+  "theme_color": "#00f0ff",
+  "display": "standalone",
+  "orientation": "portrait"
+}

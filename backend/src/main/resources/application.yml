@@ -1,0 +1,53 @@
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+spring:
+  application:
+    name: smartvote-ai
+  datasource:
+    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/smartvote_db?useSSL=true&sslMode=VERIFY_IDENTITY&allowPublicKeyRetrieval=true&serverTimezone=UTC}}
+    username: ${DB_USERNAME:${SPRING_DATASOURCE_USERNAME:3HVUhdVZBhSBCPs.root}}
+    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:6BP74bdgTlFpWzrm}}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:demo@smartvote.ai}
+    password: ${SPRING_MAIL_PASSWORD:demo_app_password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:antigravity_smartvote_ai_super_secret_jwt_key_2026_production_grade_token_signing_secret_key_384_bits}
+    expiration-ms: 86400000 # 24 hours
+    otp-expiration-seconds: 120 # 2 minutes
+  face:
+    similarity-threshold: 0.85
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:yx3r97ac}
+    api-key: ${CLOUDINARY_API_KEY:665272951174257}
+    api-secret: ${CLOUDINARY_API_SECRET:WBXFMde0defk0rcafmPXPt2lOd0}
+  cors:
+    allowed-origins:
+      - "http://localhost:5173"
+      - "http://localhost:3000"
+      - "http://127.0.0.1:5173"
+      - "https://*.onrender.com"
+      - "https://*.vercel.app"
+      - "https://*.netlify.app"

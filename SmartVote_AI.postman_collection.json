@@ -1,0 +1,219 @@
+{
+  "info": {
+    "_postman_id": "smartvote-ai-api-v1",
+    "name": "SmartVote AI - Cryptographic Online Voting System",
+    "description": "Production REST API collection for SmartVote AI: multi-factor biometric authentication, election management, cryptographic ballot sealing, and administrative governance.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "sessionToken", "value": "", "type": "string" },
+    { "key": "receiptId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication & Biometrics",
+      "item": [
+        {
+          "name": "1.1 Register Digital Identity",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Jane Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"mobileNumber\": \"+1-555-0188\",\n  \"password\": \"SecurePass@123\",\n  \"voterIdNumber\": \"SMV-7819234\",\n  \"maskedAadhaar\": \"XXXX-XXXX-9182\",\n  \"faceImageUrl\": \"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80\",\n  \"faceEmbedding\": [0.05, 0.08, 0.12, 0.04],\n  \"qualityScore\": 0.96\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "1.2 Login Stage 1 - Verify Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"voter@smartvote.ai\",\n  \"password\": \"Voter@123\",\n  \"deviceFingerprint\": \"Postman-Client-Test\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login-init", "host": ["{{baseUrl}}"], "path": ["auth", "login-init"] }
+          }
+        },
+        {
+          "name": "1.3 Login Stage 2 - Verify Face & Liveness",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"voter@smartvote.ai\",\n  \"sessionToken\": \"{{sessionToken}}\",\n  \"liveEmbedding\": [0.05, 0.07, 0.09, 0.11],\n  \"livenessPassed\": true,\n  \"blinkDetected\": true,\n  \"headTurnDetected\": true,\n  \"deviceFingerprint\": \"Postman-Client-Test\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/verify-face", "host": ["{{baseUrl}}"], "path": ["auth", "verify-face"] }
+          }
+        },
+        {
+          "name": "1.4 Login Stage 3 - Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"voter@smartvote.ai\",\n  \"otpCode\": \"123456\",\n  \"sessionToken\": \"{{sessionToken}}\",\n  \"deviceFingerprint\": \"Postman-Client-Test\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["auth", "verify-otp"] }
+          }
+        },
+        {
+          "name": "1.5 Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"voter@smartvote.ai\",\n  \"sessionToken\": \"{{sessionToken}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/resend-otp", "host": ["{{baseUrl}}"], "path": ["auth", "resend-otp"] }
+          }
+        },
+        {
+          "name": "1.6 Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Elections & Ballots",
+      "item": [
+        {
+          "name": "2.1 Public Elections List",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/elections/public", "host": ["{{baseUrl}}"], "path": ["elections", "public"] }
+          }
+        },
+        {
+          "name": "2.2 Active Elections for Current Voter",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/elections/active", "host": ["{{baseUrl}}"], "path": ["elections", "active"] }
+          }
+        },
+        {
+          "name": "2.3 Election Details with Candidates",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/elections/1", "host": ["{{baseUrl}}"], "path": ["elections", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Voting & Cryptographic Receipts",
+      "item": [
+        {
+          "name": "3.1 Cast Ballot",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"electionId\": 1,\n  \"candidateId\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/votes/cast", "host": ["{{baseUrl}}"], "path": ["votes", "cast"] }
+          }
+        },
+        {
+          "name": "3.2 My Voting History & Receipts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/votes/my-votes", "host": ["{{baseUrl}}"], "path": ["votes", "my-votes"] }
+          }
+        },
+        {
+          "name": "3.3 Public Verify Digital Receipt",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/votes/verify-receipt/{{receiptId}}", "host": ["{{baseUrl}}"], "path": ["votes", "verify-receipt", "{{receiptId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Admin Governance & Audit",
+      "item": [
+        {
+          "name": "4.1 Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/analytics", "host": ["{{baseUrl}}"], "path": ["admin", "analytics"] }
+          }
+        },
+        {
+          "name": "4.2 Search Voters Registry",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/voters?keyword=&status=", "host": ["{{baseUrl}}"], "path": ["admin", "voters"], "query": [{ "key": "keyword", "value": "" }, { "key": "status", "value": "" }] }
+          }
+        },
+        {
+          "name": "4.3 Update Voter Approval Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"reason\": \"Manual face verification completed\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/admin/voters/2/status", "host": ["{{baseUrl}}"], "path": ["admin", "voters", "2", "status"] }
+          }
+        },
+        {
+          "name": "4.4 Create New Election",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"2026 Space Commerce Advisory Council\",\n  \"description\": \"Determine orbital spectrum allocation and commercial lunar exploration standards.\",\n  \"category\": \"Aeronautics\",\n  \"startDate\": \"2026-10-01T00:00:00\",\n  \"endDate\": \"2026-10-15T23:59:59\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/admin/elections", "host": ["{{baseUrl}}"], "path": ["admin", "elections"] }
+          }
+        },
+        {
+          "name": "4.5 Get Audit Action Logs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/audit-logs", "host": ["{{baseUrl}}"], "path": ["admin", "audit-logs"] }
+          }
+        },
+        {
+          "name": "4.6 Export Audit CSV",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/export/audit-csv", "host": ["{{baseUrl}}"], "path": ["admin", "export", "audit-csv"] }
+          }
+        }
+      ]
+    }
+  ]
+}

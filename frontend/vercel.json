@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://smartvote-backend.onrender.com/api/$1"
+    },
+    {
+      "source": "/ws/(.*)",
+      "destination": "https://smartvote-backend.onrender.com/ws/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
