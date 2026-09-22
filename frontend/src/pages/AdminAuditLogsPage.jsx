@@ -35,7 +35,7 @@ export default function AdminAuditLogsPage() {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `SmartVote_Audit_Report_${Date.now()}.csv`);
+      link.setAttribute('download', `ECI_SmartVote_Audit_Report_${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -50,14 +50,14 @@ export default function AdminAuditLogsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">
-            Cryptographic Integrity Audit
+            Cryptographic Integrity Audit (Article 324)
           </span>
-          <h1 className="text-3xl font-black text-white mt-1">Security & Access Telemetry</h1>
+          <h1 className="text-3xl font-black text-white mt-1">Electoral Security & Access Telemetry</h1>
         </div>
 
         <button
           onClick={handleExportCsv}
-          className="px-5 py-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 text-xs font-bold shadow-neon-cyan flex items-center space-x-2 transition"
+          className="px-5 py-2.5 rounded-xl bg-slate-900 border border-amber-500/40 hover:border-amber-400 text-amber-300 text-xs font-bold shadow-md flex items-center space-x-2 transition cursor-pointer"
         >
           <Download className="w-4 h-4" />
           <span>Export Audit Report (CSV)</span>
@@ -70,99 +70,114 @@ export default function AdminAuditLogsPage() {
           onClick={() => setActiveTab('audit')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
             activeTab === 'audit'
-              ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400'
-              : 'text-slate-400 hover:text-white bg-slate-900'
+              ? 'bg-amber-500/20 border border-amber-400 text-amber-300'
+              : 'text-slate-400 hover:text-white hover:bg-slate-900'
           }`}
         >
-          Action Audit Trail ({auditLogs.length})
+          System Action Ledger ({auditLogs.length})
         </button>
         <button
           onClick={() => setActiveTab('login')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${
             activeTab === 'login'
-              ? 'bg-purple-500/20 text-purple-300 border border-purple-400'
-              : 'text-slate-400 hover:text-white bg-slate-900'
+              ? 'bg-purple-500/20 border border-purple-400 text-purple-300'
+              : 'text-slate-400 hover:text-white hover:bg-slate-900'
           }`}
         >
-          Authentication & Device Log ({loginHistories.length})
+          Biometric & OTP Access History ({loginHistories.length})
         </button>
       </div>
 
-      {/* Logs Table */}
       {isLoading ? (
         <div className="p-16 text-center text-slate-400">
-          <RefreshCw className="w-8 h-8 text-purple-400 animate-spin mx-auto mb-2" />
-          <span className="text-xs">Reading immutable security journal...</span>
+          <RefreshCw className="w-8 h-8 text-amber-400 animate-spin mx-auto mb-2" />
+          <span className="text-xs">Querying cryptographic telemetry...</span>
         </div>
       ) : activeTab === 'audit' ? (
+        /* SYSTEM AUDIT LOGS TABLE */
         <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
               <tr className="border-b border-slate-800 text-slate-400">
-                <th className="pb-3 font-semibold">Timestamp</th>
-                <th className="pb-3 font-semibold">Actor / Email</th>
-                <th className="pb-3 font-semibold">Role</th>
+                <th className="pb-3 font-semibold">Timestamp (IST)</th>
+                <th className="pb-3 font-semibold">Actor / Officer</th>
                 <th className="pb-3 font-semibold">Action</th>
-                <th className="pb-3 font-semibold">Target Entity</th>
+                <th className="pb-3 font-semibold">Entity Type</th>
                 <th className="pb-3 font-semibold">IP Address</th>
-                <th className="pb-3 font-semibold">Details</th>
+                <th className="pb-3 font-semibold">Operational Details</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
-              {auditLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-800/30 transition">
-                  <td className="py-3 text-slate-400">{new Date(log.timestamp).toLocaleString()}</td>
-                  <td className="py-3 text-cyan-300 font-bold">{log.actorEmail}</td>
-                  <td className="py-3 text-slate-400">{log.actorRole}</td>
-                  <td className="py-3">
-                    <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700">
-                      {log.action}
-                    </span>
+              {auditLogs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-500">
+                    No system audit records logged yet.
                   </td>
-                  <td className="py-3 text-purple-300">{log.entityType} ({log.entityId})</td>
-                  <td className="py-3 text-slate-500">{log.ipAddress}</td>
-                  <td className="py-3 text-slate-300 font-sans max-w-sm truncate">{log.details}</td>
                 </tr>
-              ))}
+              ) : (
+                auditLogs.map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-800/30 transition">
+                    <td className="py-3 text-slate-400">
+                      {new Date(log.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST
+                    </td>
+                    <td className="py-3 text-amber-400 font-semibold">{log.actorEmail}</td>
+                    <td className="py-3">
+                      <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-200">
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="py-3 text-slate-300">{log.entityType} ({log.entityId})</td>
+                    <td className="py-3 text-slate-500">{log.ipAddress || '127.0.0.1'}</td>
+                    <td className="py-3 text-slate-400 max-w-sm truncate">{log.details}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       ) : (
+        /* LOGIN HISTORIES TABLE */
         <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
               <tr className="border-b border-slate-800 text-slate-400">
-                <th className="pb-3 font-semibold">Timestamp</th>
-                <th className="pb-3 font-semibold">Account Email</th>
-                <th className="pb-3 font-semibold">Authentication Status</th>
-                <th className="pb-3 font-semibold">Failure / Security Reason</th>
+                <th className="pb-3 font-semibold">Timestamp (IST)</th>
+                <th className="pb-3 font-semibold">Voter / Admin</th>
+                <th className="pb-3 font-semibold">Verification Result</th>
                 <th className="pb-3 font-semibold">IP Address</th>
-                <th className="pb-3 font-semibold">Browser / Fingerprint</th>
+                <th className="pb-3 font-semibold">Device / Client Agent</th>
+                <th className="pb-3 font-semibold">Security Reason</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
-              {loginHistories.map((hist) => (
-                <tr key={hist.id} className="hover:bg-slate-800/30 transition">
-                  <td className="py-3 text-slate-400">{new Date(hist.timestamp).toLocaleString()}</td>
-                  <td className="py-3 text-white font-bold">{hist.email}</td>
-                  <td className="py-3">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      hist.status === 'SUCCESS'
-                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
-                        : hist.status === 'FAILED_FACE'
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-400/40'
-                        : hist.status === 'LOCKED'
-                        ? 'bg-purple-500/20 text-purple-300 border border-purple-400/40'
-                        : 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
-                    }`}>
-                      {hist.status}
-                    </span>
+              {loginHistories.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-500">
+                    No access history records found.
                   </td>
-                  <td className="py-3 text-slate-300 font-sans">{hist.failureReason || 'Authorized'}</td>
-                  <td className="py-3 text-slate-500">{hist.ipAddress}</td>
-                  <td className="py-3 text-slate-400 text-[10px] max-w-xs truncate">{hist.userAgent}</td>
                 </tr>
-              ))}
+              ) : (
+                loginHistories.map((h) => (
+                  <tr key={h.id} className="hover:bg-slate-800/30 transition">
+                    <td className="py-3 text-slate-400">
+                      {new Date(h.attemptTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST
+                    </td>
+                    <td className="py-3 text-amber-400 font-semibold">{h.email}</td>
+                    <td className="py-3">
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        h.status === 'SUCCESS'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                      }`}>
+                        {h.status}
+                      </span>
+                    </td>
+                    <td className="py-3 text-slate-500">{h.ipAddress || '127.0.0.1'}</td>
+                    <td className="py-3 text-slate-400 max-w-xs truncate">{h.deviceFingerprint || h.userAgent}</td>
+                    <td className="py-3 text-slate-400">{h.failureReason || 'ECI MFA Authenticated'}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

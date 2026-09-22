@@ -14,7 +14,7 @@ export default function VoteReceiptModal({ receipt, onClose }) {
       particleCount: 120,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ['#00f0ff', '#8a2be2', '#00ffa3', '#ffd600'],
+      colors: ['#f59e0b', '#10b981', '#ffffff', '#3b82f6'],
     });
   }, []);
 
@@ -30,51 +30,51 @@ export default function VoteReceiptModal({ receipt, onClose }) {
       format: 'a4',
     });
 
-    // Dark sleek theme for official certificate
-    doc.setFillColor(7, 10, 19);
+    // Dark sleek official theme
+    doc.setFillColor(10, 15, 29);
     doc.rect(0, 0, 210, 297, 'F');
 
-    // Header border
-    doc.setDrawColor(0, 240, 255);
+    // Outer border
+    doc.setDrawColor(245, 158, 11);
     doc.setLineWidth(1);
     doc.rect(12, 12, 186, 273);
 
     // Inner subtle border
-    doc.setDrawColor(138, 43, 226);
+    doc.setDrawColor(16, 185, 129);
     doc.setLineWidth(0.3);
     doc.rect(15, 15, 180, 267);
 
-    // Title
-    doc.setTextColor(0, 240, 255);
+    // Header Title
+    doc.setTextColor(245, 158, 11);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.text('SMARTVOTE AI', 105, 32, { align: 'center' });
+    doc.setFontSize(20);
+    doc.text('ELECTION COMMISSION OF INDIA', 105, 30, { align: 'center' });
 
-    doc.setTextColor(148, 163, 184);
-    doc.setFontSize(10);
+    doc.setTextColor(226, 232, 240);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text('CRYPTOGRAPHIC ZERO-KNOWLEDGE ELECTION LEDGER', 105, 39, { align: 'center' });
+    doc.text('SMARTVOTE BHARAT • NATIONAL DIGITAL VOTING SYSTEM', 105, 37, { align: 'center' });
 
-    doc.setDrawColor(30, 41, 59);
-    doc.line(25, 45, 185, 45);
+    doc.setDrawColor(51, 65, 85);
+    doc.line(25, 43, 185, 43);
 
-    // Receipt Badge
-    doc.setTextColor(0, 255, 163);
-    doc.setFontSize(14);
+    // Certificate Badge
+    doc.setTextColor(16, 185, 129);
+    doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text('OFFICIAL VOTING RECEIPT & CERTIFICATE', 105, 56, { align: 'center' });
+    doc.text('OFFICIAL DEMOCRATIC VOTING CERTIFICATE (ARTICLE 324)', 105, 54, { align: 'center' });
 
     // Details Grid
     doc.setFontSize(11);
     doc.setTextColor(226, 232, 240);
 
-    const startY = 72;
+    const startY = 68;
     const lineSpacing = 11;
 
     doc.setFont('helvetica', 'bold');
     doc.text('Receipt ID:', 30, startY);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(0, 240, 255);
+    doc.setTextColor(245, 158, 11);
     doc.text(receipt.receiptId || '', 75, startY);
 
     doc.setTextColor(226, 232, 240);
@@ -91,50 +91,51 @@ export default function VoteReceiptModal({ receipt, onClose }) {
     doc.setFont('helvetica', 'bold');
     doc.text('Timestamp:', 30, startY + lineSpacing * 3.5);
     doc.setFont('helvetica', 'normal');
-    doc.text(new Date(receipt.votedAt || Date.now()).toUTCString(), 75, startY + lineSpacing * 3.5);
+    const istTime = new Date(receipt.votedAt || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST';
+    doc.text(istTime, 75, startY + lineSpacing * 3.5);
 
     // Hash Seal Box
     doc.setFillColor(15, 23, 42);
-    doc.roundedRect(25, 125, 160, 32, 3, 3, 'F');
-    doc.setDrawColor(0, 240, 255);
-    doc.roundedRect(25, 125, 160, 32, 3, 3, 'D');
+    doc.roundedRect(25, 122, 160, 32, 3, 3, 'F');
+    doc.setDrawColor(245, 158, 11);
+    doc.roundedRect(25, 122, 160, 32, 3, 3, 'D');
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(0, 240, 255);
-    doc.text('SHA-256 DIGITAL SEAL HASH:', 30, 134);
+    doc.setTextColor(245, 158, 11);
+    doc.text('SHA-256 DIGITAL SEAL HASH (CRYPTOGRAPHIC IMMUTABILITY):', 30, 131);
 
     doc.setFont('courier', 'normal');
     doc.setFontSize(8.5);
-    doc.setTextColor(192, 132, 252);
-    doc.text(receipt.receiptHash || '', 30, 142);
+    doc.setTextColor(245, 245, 245);
+    doc.text(receipt.receiptHash || '', 30, 139);
 
     doc.setFont('courier', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(148, 163, 184);
-    doc.text(`SIG: ${receipt.digitalSignature || ''}`.substring(0, 70), 30, 150);
+    doc.text(`SIG: ${receipt.digitalSignature || ''}`.substring(0, 70), 30, 147);
 
     // Verification Notice
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
+    doc.setFontSize(9.5);
     doc.setTextColor(148, 163, 184);
-    doc.text('You may verify this ballot inclusion on the public ledger using the verification URL below:', 105, 175, { align: 'center' });
+    doc.text('This ballot is permanently sealed in the public election ledger under Article 324 secret ballot protection.', 105, 172, { align: 'center' });
 
-    doc.setTextColor(0, 240, 255);
+    doc.setTextColor(245, 158, 11);
     doc.setFontSize(9);
-    doc.text(receipt.verificationUrl || 'https://smartvote.ai/verify', 105, 183, { align: 'center' });
+    doc.text(`Ledger Verification URL: ${receipt.verificationUrl || 'https://smartvote.ai/verify'}`, 105, 180, { align: 'center' });
 
     // Footer
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(8);
-    doc.text('SmartVote AI Cryptographic Voting Protocol — Immutable Record Guaranteed', 105, 265, { align: 'center' });
+    doc.text('Election Commission of India • National Digital Voting Standard — Article 324 Constitution of India', 105, 268, { align: 'center' });
 
-    doc.save(`SmartVote_Receipt_${receipt.receiptId}.pdf`);
+    doc.save(`ECI_Voting_Certificate_${receipt.receiptId}.pdf`);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl animate-fade-in">
-      <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-slate-900/95 border-2 border-cyan-500/50 shadow-2xl shadow-cyan-500/20">
+      <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-slate-900/95 border-2 border-amber-500/40 shadow-2xl">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -145,24 +146,24 @@ export default function VoteReceiptModal({ receipt, onClose }) {
 
         {/* Success Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border-2 border-emerald-400 flex items-center justify-center mb-3 shadow-[0_0_25px_#00ffa3]">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border-2 border-emerald-400 flex items-center justify-center mb-3 shadow-[0_0_25px_#10b981]">
             <CheckCircle2 className="w-9 h-9 text-emerald-400" />
           </div>
           <h2 className="text-2xl font-black text-white tracking-wide">Ballot Successfully Sealed!</h2>
           <p className="text-xs text-slate-400 mt-1">
-            Your vote has been cryptographically signed and permanently committed to the election ledger.
+            Your vote has been cryptographically signed and committed to the National Election Ledger.
           </p>
         </div>
 
         {/* Holographic Receipt Card */}
-        <div className="mt-6 p-4 rounded-2xl bg-slate-950 border border-cyan-500/30 font-mono text-xs">
+        <div className="mt-6 p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
-            <span className="text-slate-400">RECEIPT IDENTIFIER</span>
+            <span className="text-slate-400">OFFICIAL RECEIPT ID</span>
             <div className="flex items-center space-x-2">
-              <span className="text-emerald-400 font-bold">{receipt.receiptId}</span>
+              <span className="text-amber-400 font-bold">{receipt.receiptId}</span>
               <button
                 onClick={() => copyToClipboard(receipt.receiptId)}
-                className="text-slate-400 hover:text-cyan-400"
+                className="text-slate-400 hover:text-amber-400"
                 title="Copy ID"
               >
                 <Copy className="w-3.5 h-3.5" />
@@ -177,15 +178,15 @@ export default function VoteReceiptModal({ receipt, onClose }) {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Selection:</span>
-              <span className="text-cyan-400 font-bold">{receipt.candidateName}</span>
+              <span className="text-amber-400 font-bold">{receipt.candidateName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Affiliation:</span>
+              <span className="text-slate-500">Party & Symbol:</span>
               <span className="text-slate-300">{receipt.partyName} {receipt.partySymbol}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Timestamp:</span>
-              <span className="text-slate-400">{new Date(receipt.votedAt || Date.now()).toLocaleString()}</span>
+              <span className="text-slate-500">Timestamp (IST):</span>
+              <span className="text-slate-400">{new Date(receipt.votedAt || Date.now()).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST</span>
             </div>
           </div>
 
@@ -196,7 +197,7 @@ export default function VoteReceiptModal({ receipt, onClose }) {
             </div>
             <div className="flex-1 overflow-hidden">
               <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">SHA-256 Digital Seal</div>
-              <div className="text-[10px] font-mono text-cyan-300 break-all bg-slate-900 p-2 rounded-lg border border-cyan-500/20">
+              <div className="text-[10px] font-mono text-amber-300 break-all bg-slate-900 p-2 rounded-lg border border-amber-500/20">
                 {receipt.receiptHash}
               </div>
             </div>
@@ -208,7 +209,7 @@ export default function VoteReceiptModal({ receipt, onClose }) {
           <button
             type="button"
             onClick={downloadPdf}
-            className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-400 via-purple-500 to-emerald-400 text-slate-950 font-bold text-xs shadow-neon-cyan hover:opacity-95 flex items-center justify-center space-x-2 transition"
+            className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:opacity-95 text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 transition cursor-pointer"
           >
             <Download className="w-4 h-4" />
             <span>{t('btn_download_pdf')}</span>
@@ -216,9 +217,9 @@ export default function VoteReceiptModal({ receipt, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition"
+            className="py-3 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition cursor-pointer"
           >
-            Return to Dashboard
+            {t('btn_return_dashboard')}
           </button>
         </div>
       </div>

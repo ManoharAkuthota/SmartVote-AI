@@ -69,7 +69,7 @@ export default function LoginPage() {
         setErrorMsg(res.data?.message || 'Authentication failed.');
       }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Invalid email or password. Please verify your credentials.');
+      setErrorMsg(err.response?.data?.message || 'Invalid email or password. Please verify your electoral credentials.');
     } finally {
       setIsSubmitting(false);
     }
@@ -132,12 +132,12 @@ export default function LoginPage() {
         {step === 1 && (
           <form onSubmit={handleLoginInit} className="space-y-4">
             <div className="text-center mb-6">
-              <div className="w-12 h-12 mx-auto rounded-xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-3">
-                <Shield className="w-6 h-6 text-blue-500" />
+              <div className="w-12 h-12 mx-auto rounded-xl bg-amber-600/10 border border-amber-500/30 flex items-center justify-center mb-3">
+                <Shield className="w-6 h-6 text-amber-500" />
               </div>
-              <h2 className="text-xl font-bold text-white">Official Voter Portal</h2>
+              <h2 className="text-xl font-bold text-white">Official E-Voter Portal</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Enter your credentials to begin secure multi-factor authentication.
+                Enter your credentials to begin secure multi-factor biometric authentication.
               </p>
             </div>
 
@@ -151,7 +151,7 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="voter@smartvote.ai"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none transition"
                   required
                 />
               </div>
@@ -167,7 +167,7 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none transition"
                   required
                 />
                 <button
@@ -182,10 +182,10 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Demo Shortcuts */}
+            {/* Indian Demo Accounts */}
             <div className="pt-2">
               <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-1.5 font-medium">
-                Demo Accounts:
+                Official Demo Credentials:
               </span>
               <div className="flex space-x-2">
                 <button
@@ -193,14 +193,14 @@ export default function LoginPage() {
                   onClick={() => setDemoCredentials('voter')}
                   className="flex-1 py-1.5 px-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] text-slate-200 font-medium transition flex items-center justify-center gap-1"
                 >
-                  <span>👤 Voter Account</span>
+                  <span>👤 Citizen Voter</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setDemoCredentials('admin')}
                   className="flex-1 py-1.5 px-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] text-slate-200 font-medium transition flex items-center justify-center gap-1"
                 >
-                  <span>🛡️ Admin Account</span>
+                  <span>🛡️ Election Admin</span>
                 </button>
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs shadow transition flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+              className="w-full mt-5 py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:opacity-95 text-white font-semibold text-xs shadow transition flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
@@ -224,9 +224,9 @@ export default function LoginPage() {
             </button>
 
             <div className="text-center mt-4 text-xs text-slate-400">
-              Need to register as a voter?{' '}
-              <Link to="/register" className="text-blue-400 hover:text-blue-300 font-semibold underline underline-offset-2">
-                Official Voter Registration
+              Not yet enrolled as a voter?{' '}
+              <Link to="/register" className="text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-2">
+                Apply for Enrollment (Form 6)
               </Link>
             </div>
           </form>
@@ -238,7 +238,7 @@ export default function LoginPage() {
             <div className="text-center mb-4">
               <h2 className="text-xl font-bold text-white">Biometric Identity Verification</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Position your face within the oval guide to verify against your enrolled profile.
+                Position your face within the oval guide to verify against your enrolled electoral photo.
               </p>
             </div>
 

@@ -31,7 +31,7 @@ export default function AdminDashboard() {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-slate-400">
         <RefreshCw className="w-8 h-8 text-purple-400 animate-spin mb-3" />
-        <p className="text-xs">Aggregating cryptographic election telemetry...</p>
+        <p className="text-xs font-medium">Aggregating cryptographic election telemetry...</p>
       </div>
     );
   }
@@ -43,14 +43,14 @@ export default function AdminDashboard() {
         <div>
           <div className="flex items-center space-x-2">
             <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">
-              Admin Command Center
+              Chief Election Commissioner Operations
             </span>
             <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
               Live Telemetry
             </span>
           </div>
-          <h1 className="text-3xl font-black text-white mt-1">Election Operations & Intelligence</h1>
+          <h1 className="text-3xl font-black text-white mt-1">Electoral Roll & Polling Intelligence</h1>
         </div>
 
         {/* Quick Link Buttons */}
@@ -63,13 +63,13 @@ export default function AdminDashboard() {
           </Link>
           <Link
             to="/admin/voters"
-            className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-slate-200 text-xs font-semibold transition"
+            className="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-200 text-xs font-semibold transition"
           >
-            Voter Registry
+            Electoral Roll
           </Link>
           <Link
             to="/admin/audit"
-            className="px-4 py-2 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-300 text-xs font-semibold shadow-neon-purple hover:opacity-90 transition"
+            className="px-4 py-2 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-300 text-xs font-semibold shadow-sm hover:opacity-90 transition"
           >
             Security Audit
           </Link>
@@ -79,11 +79,11 @@ export default function AdminDashboard() {
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
-          title="Total Registered Voters"
+          title="Total Registered Citizens"
           value={analytics?.totalRegisteredVoters || 0}
           subtitle={`${analytics?.totalApprovedVoters || 0} Biometrically Verified`}
           icon={Users}
-          color="cyan"
+          color="amber"
         />
         <StatCard
           title="Sealed Ballots Cast"
@@ -93,14 +93,14 @@ export default function AdminDashboard() {
           color="green"
         />
         <StatCard
-          title="Active Elections"
+          title="Active Constituency Polls"
           value={analytics?.activeElectionsCount || 0}
           subtitle="Polling open nationwide"
           icon={Activity}
           color="purple"
         />
         <StatCard
-          title="Suspicious Login Alerts"
+          title="Biometric Anomaly Alerts"
           value={analytics?.suspiciousLoginsCount || 0}
           subtitle="Spoof / Failed Biometrics"
           icon={ShieldAlert}
@@ -114,10 +114,10 @@ export default function AdminDashboard() {
         <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl backdrop-blur-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-cyan-400" />
+              <BarChart3 className="w-4 h-4 text-amber-400" />
               <span>Candidate Vote Distribution</span>
             </h2>
-            <span className="text-xs text-slate-400 font-mono">Live Tallies</span>
+            <span className="text-xs text-slate-400 font-mono">Live Counting</span>
           </div>
 
           <div className="space-y-4">
@@ -128,15 +128,15 @@ export default function AdminDashboard() {
                 <div key={cand.candidateId} className="space-y-1.5">
                   <div className="flex justify-between text-xs font-medium">
                     <span className="text-slate-200">
-                      {cand.candidateName} <span className="text-slate-500">({cand.partyName})</span>
+                      {cand.candidateName} <span className="text-slate-400">({cand.partyName})</span>
                     </span>
-                    <span className="text-cyan-400 font-mono font-bold">
+                    <span className="text-amber-400 font-mono font-bold">
                       {cand.voteCount} votes ({cand.percentage}%)
                     </span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
                     <div
-                      className="h-full bg-gradient-to-r from-cyan-400 to-purple-500 transition-all duration-500 rounded-full"
+                      className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-500 transition-all duration-500 rounded-full"
                       style={{ width: `${Math.max(2, cand.percentage)}%` }}
                     />
                   </div>
@@ -151,9 +151,9 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Clock className="w-4 h-4 text-purple-400" />
-              <span>Hourly Voting Volume (Last 24 Hours)</span>
+              <span>Hourly Polling Surge (Last 24 Hours)</span>
             </h2>
-            <span className="text-xs text-slate-400 font-mono">Real-time Surge Tracker</span>
+            <span className="text-xs text-slate-400 font-mono">Real-time Surge</span>
           </div>
 
           <div className="h-56 flex items-end justify-between gap-1 pt-6 px-2 border-b border-slate-800">
@@ -165,14 +165,13 @@ export default function AdminDashboard() {
 
               return (
                 <div key={idx} className="flex-1 flex flex-col items-center group relative h-full justify-end">
-                  {/* Tooltip on hover */}
                   <div className="opacity-0 group-hover:opacity-100 transition absolute -top-8 px-2 py-1 bg-slate-800 border border-slate-700 text-[10px] text-white rounded font-mono pointer-events-none z-10 whitespace-nowrap">
                     {idx}:00 - {count} votes
                   </div>
 
                   <div
                     className={`w-full max-w-[12px] rounded-t transition-all ${
-                      count > 0 ? 'bg-gradient-to-t from-purple-600 to-cyan-400 shadow-neon-cyan' : 'bg-slate-800/40'
+                      count > 0 ? 'bg-gradient-to-t from-purple-600 to-amber-400' : 'bg-slate-800/40'
                     }`}
                     style={{ height: `${Math.max(8, heightPct)}%` }}
                   />
@@ -191,10 +190,10 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-bold text-white flex items-center gap-2">
             <Activity className="w-4 h-4 text-emerald-400" />
-            <span>Recent System Audit Operations</span>
+            <span>Recent Election Commission Audit Operations</span>
           </h2>
-          <Link to="/admin/audit" className="text-xs text-cyan-400 hover:text-cyan-300">
-            View All Audit Logs &rarr;
+          <Link to="/admin/audit" className="text-xs text-amber-400 hover:text-amber-300">
+            View All Audit Records &rarr;
           </Link>
         </div>
 
@@ -221,9 +220,9 @@ export default function AdminDashboard() {
                 analytics.recentActivities.map((act) => (
                   <tr key={act.id} className="hover:bg-slate-800/30 transition">
                     <td className="py-2.5 text-slate-400">
-                      {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                      {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} IST
                     </td>
-                    <td className="py-2.5 text-cyan-400">{act.actorEmail}</td>
+                    <td className="py-2.5 text-amber-400">{act.actorEmail}</td>
                     <td className="py-2.5">
                       <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700">
                         {act.action}

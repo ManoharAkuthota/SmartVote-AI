@@ -53,33 +53,33 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        // Seed Admin if not present
+        // Seed Chief Election Commissioner / Admin if not present
         if (userRepository.findByEmail("admin@smartvote.ai").isEmpty()) {
             User admin = new User();
-            admin.setFullName("System Administrator");
+            admin.setFullName("Chief Election Commissioner (Admin)");
             admin.setEmail("admin@smartvote.ai");
-            admin.setMobileNumber("+1-555-0199");
+            admin.setMobileNumber("+91-9876543210");
             admin.setPassword(passwordEncoder.encode("Admin@123"));
             admin.setRole(Role.ROLE_ADMIN);
             admin.setStatus(UserStatus.APPROVED);
-            admin.setVoterIdNumber("SMV-ADMIN-001");
+            admin.setVoterIdNumber("ECI-HQ-ADM01");
             admin.setMaskedAadhaar("XXXX-XXXX-9999");
             admin.setFaceImageUrl("https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80");
             admin.setFailedLoginAttempts(0);
             userRepository.save(admin);
-            log.info("Initialized default Admin: admin@smartvote.ai / Admin@123");
+            log.info("Initialized default Indian Election Commission Admin: admin@smartvote.ai / Admin@123");
         }
 
-        // Seed Sample Voter if not present
+        // Seed Sample Citizen Voter if not present
         if (userRepository.findByEmail("voter@smartvote.ai").isEmpty()) {
             User voter = new User();
-            voter.setFullName("Alex Reynolds");
+            voter.setFullName("Rajesh Kumar Verma");
             voter.setEmail("voter@smartvote.ai");
-            voter.setMobileNumber("+1-555-0144");
+            voter.setMobileNumber("+91-9876543211");
             voter.setPassword(passwordEncoder.encode("Voter@123"));
             voter.setRole(Role.ROLE_VOTER);
             voter.setStatus(UserStatus.APPROVED);
-            voter.setVoterIdNumber("SMV-8941205");
+            voter.setVoterIdNumber("IND-DL-8941205");
             voter.setMaskedAadhaar("XXXX-XXXX-4589");
             voter.setFaceImageUrl("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80");
             voter.setFailedLoginAttempts(0);
@@ -94,102 +94,151 @@ public class DataInitializer implements CommandLineRunner {
 
             User savedVoter = userRepository.save(voter);
 
-            // Welcome notification
-            notificationRepository.save(new Notification(savedVoter, "Digital Voter Identity Verified",
-                    "Your biometric demo identity is authenticated. You may participate in active elections.",
+            // Welcome notification in official ECI context
+            notificationRepository.save(new Notification(savedVoter, "Digital Voter Identity Verified (EPIC: IND-DL-8941205)",
+                    "Your biometric citizen identity has been authenticated by the Election Commission of India. You may participate in active parliamentary and assembly ballots.",
                     NotificationType.SUCCESS));
 
-            log.info("Initialized default Voter: voter@smartvote.ai / Voter@123");
+            log.info("Initialized default Indian Citizen Voter: voter@smartvote.ai / Voter@123 (EPIC: IND-DL-8941205)");
         }
     }
 
     private void seedElections() {
         if (electionRepository.count() == 0) {
-            // Election 1: Active
+            // Election 1: Active - 18th Lok Sabha General Elections
             Election election1 = new Election();
-            election1.setTitle("2026 Global AI Governance & Ethics Council");
-            election1.setDescription("Determine international policy directives on autonomous agent safety, frontier foundation model standards, and zero-knowledge privacy guarantees across digital elections.");
-            election1.setCategory("Technology & Governance");
-            election1.setBannerUrl("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80");
+            election1.setTitle("18th Lok Sabha General Elections 2026");
+            election1.setDescription("Elect Member of Parliament (MP) representing the New Delhi Parliamentary Constituency. Voting is conducted under the constitutional supervision of the Election Commission of India with strict Article 324 secret ballot guarantees.");
+            election1.setCategory("Parliamentary (Lok Sabha)");
+            election1.setBannerUrl("https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80");
             election1.setStartDate(LocalDateTime.now().minusDays(1));
             election1.setEndDate(LocalDateTime.now().plusDays(14));
             election1.setStatus(ElectionStatus.ACTIVE);
             election1.setTotalVotes(0);
 
             Candidate c1 = new Candidate(
-                    "Dr. Elena Rostova",
-                    "Open Intelligence Coalition",
-                    "🌐",
-                    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
-                    "Advocating for fully auditable open-weight neural systems and public compute infrastructure grants."
+                    "Rajeshwar Nath Sharma",
+                    "Bharatiya Janata Party (BJP)",
+                    "🪷",
+                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+                    "Committed to national infrastructure modernization, digital public goods, zero corruption, and technological self-reliance."
             );
             election1.addCandidate(c1);
 
             Candidate c2 = new Candidate(
-                    "Marcus Vance",
-                    "Cyber Sovereignty Alliance",
-                    "🛡️",
-                    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-                    "Championing resilient sovereign cryptography, real-time threat neutralization, and strict data localization."
+                    "Priya R. Patel",
+                    "Indian National Congress (INC)",
+                    "✋",
+                    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+                    "Championing universal social safety nets, quality education access, youth employment guarantees, and constitutional institutional integrity."
             );
             election1.addCandidate(c2);
 
             Candidate c3 = new Candidate(
-                    "Priya Sharma",
-                    "Digital Ethics & Human Rights",
-                    "⚖️",
-                    "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
-                    "Pioneering algorithmic fairness standards, bias remediation, and inclusive global civic engagement."
+                    "Arvind Mohan Saxena",
+                    "Aam Aadmi Party (AAP)",
+                    "🧹",
+                    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+                    "Focusing on high-standard government schools, neighborhood health clinics, 24/7 clean water access, and administrative transparency."
             );
             election1.addCandidate(c3);
 
+            Candidate c4 = new Candidate(
+                    "Anand Devraj Kumar",
+                    "Bahujan Samaj Party (BSP)",
+                    "🐘",
+                    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+                    "Advocating for social justice, equitable empowerment of marginalized communities, and comprehensive legal welfare protections."
+            );
+            election1.addCandidate(c4);
+
             electionRepository.save(election1);
 
-            // Election 2: Active
+            // Election 2: Active - State Legislative Assembly (Vidhan Sabha)
             Election election2 = new Election();
-            election2.setTitle("National Smart City & Infrastructure Assembly 2026");
-            election2.setDescription("Elect representatives overseeing high-speed sustainable transportation networks, renewable smart grids, and citizen biometric data sovereignty.");
-            election2.setCategory("Civic Infrastructure");
+            election2.setTitle("State Legislative Assembly Election 2026 (Vidhan Sabha)");
+            election2.setDescription("Elect Member of the Legislative Assembly (MLA) for Bengaluru South / Metro State Constituency to oversee state legislation, urban transit networks, public infrastructure, and citizen services.");
+            election2.setCategory("State Assembly (Vidhan Sabha)");
             election2.setBannerUrl("https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1200&q=80");
             election2.setStartDate(LocalDateTime.now().minusDays(2));
             election2.setEndDate(LocalDateTime.now().plusDays(7));
             election2.setStatus(ElectionStatus.ACTIVE);
             election2.setTotalVotes(0);
 
-            Candidate c4 = new Candidate(
-                    "David Chen",
-                    "Green Urban Tech",
-                    "🌿",
-                    "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80",
-                    "Decarbonizing city transit through distributed solar canopy networks and zero-emission transit."
-            );
-            election2.addCandidate(c4);
-
             Candidate c5 = new Candidate(
-                    "Sophia Al-Mansoor",
-                    "Connected Metro Initiative",
-                    "⚡",
-                    "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80",
-                    "Building resilient municipal broadband, edge IoT sensor mesh, and responsive civic services."
+                    "Dr. K. Venkat Reddy",
+                    "Rashtriya Pragati Front (RPF)",
+                    "🚜",
+                    "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80",
+                    "Promoting agricultural technology modernization, rural-urban connectivity, and fair farmer price realization."
             );
             election2.addCandidate(c5);
 
+            Candidate c6 = new Candidate(
+                    "Anita S. Deshmukh",
+                    "Lok Seva Morcha (LSM)",
+                    "☀️",
+                    "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+                    "Dedicated to women's financial independence, renewable solar micro-grids, and decentralized urban planning."
+            );
+            election2.addCandidate(c6);
+
+            Candidate c7 = new Candidate(
+                    "Mohammad Farooq",
+                    "Samyukta Jan Kalyan Party",
+                    "🪁",
+                    "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80",
+                    "Pioneering youth vocational skilling centers, free public library hubs, and inclusive civic community centers."
+            );
+            election2.addCandidate(c7);
+
             electionRepository.save(election2);
 
-            // Election 3: Upcoming
+            // Election 3: Active - Greater Municipal Corporation (Nagar Nigam)
             Election election3 = new Election();
-            election3.setTitle("Global Quantum Standards & Cryptographic Council 2027");
-            election3.setDescription("Setting global protocols for post-quantum lattice cryptography, quantum key distribution, and security certification standards.");
-            election3.setCategory("Scientific Governance");
-            election3.setBannerUrl("https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&w=1200&q=80");
-            election3.setStartDate(LocalDateTime.now().plusDays(30));
-            election3.setEndDate(LocalDateTime.now().plusDays(60));
-            election3.setStatus(ElectionStatus.UPCOMING);
+            election3.setTitle("Greater Municipal Corporation Civic Council 2026");
+            election3.setDescription("Elect Ward Councillor to the Municipal Corporation (Nagar Nigam) governing neighborhood public sanitation, stormwater drainage, local health centers, and smart street lighting.");
+            election3.setCategory("Municipal Corporation (Nagar Nigam)");
+            election3.setBannerUrl("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80");
+            election3.setStartDate(LocalDateTime.now().minusDays(1));
+            election3.setEndDate(LocalDateTime.now().plusDays(5));
+            election3.setStatus(ElectionStatus.ACTIVE);
             election3.setTotalVotes(0);
+
+            Candidate c8 = new Candidate(
+                    "Suresh Chander Gupta",
+                    "Citizens Civic Council",
+                    "💧",
+                    "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+                    "Ensuring 24/7 piped drinking water to all households, automated sewer desilting, and zero monsoon waterlogging."
+            );
+            election3.addCandidate(c8);
+
+            Candidate c9 = new Candidate(
+                    "Kavita Nambiar",
+                    "Clean City Alliance",
+                    "🌳",
+                    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+                    "Prioritizing municipal waste segregation, neighborhood public parks, and zero-emission electric civic transit."
+            );
+            election3.addCandidate(c9);
 
             electionRepository.save(election3);
 
-            log.info("Initialized default seed elections and candidates.");
+            // Election 4: Upcoming - Council of States (Rajya Sabha)
+            Election election4 = new Election();
+            election4.setTitle("Council of States Biennial Election 2027 (Rajya Sabha)");
+            election4.setDescription("Biennial elections for the Council of States (Rajya Sabha) representing states and union territories in the Parliament of India.");
+            election4.setCategory("Parliamentary (Rajya Sabha)");
+            election4.setBannerUrl("https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=1200&q=80");
+            election4.setStartDate(LocalDateTime.now().plusDays(30));
+            election4.setEndDate(LocalDateTime.now().plusDays(60));
+            election4.setStatus(ElectionStatus.UPCOMING);
+            election4.setTotalVotes(0);
+
+            electionRepository.save(election4);
+
+            log.info("Initialized authentic Indian democratic seed elections, candidates, and symbols.");
         }
     }
 }

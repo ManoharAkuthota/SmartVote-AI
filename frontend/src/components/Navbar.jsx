@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Shield, Bell, Globe, Sun, Moon, Volume2, VolumeX, LogOut, User, CheckCircle, AlertTriangle, Menu, X, ChevronRight, Vote, ShieldCheck, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage, SUPPORTED_LANGUAGES } from '../context/LanguageContext';
 import api from '../services/api';
 
 export default function Navbar() {
@@ -17,11 +17,13 @@ export default function Navbar() {
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
   // Close mobile drawer on route change
   useEffect(() => {
     setMobileMenuOpen(false);
     setShowNotifDrawer(false);
+    setLangDropdownOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -62,25 +64,33 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/85 border-b border-cyan-500/20 shadow-lg transition-colors">
+    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/90 border-b border-orange-500/20 shadow-lg transition-colors">
+      {/* Subtle National Tricolor Accent Top Stripe */}
+      <div className="h-1 w-full flex">
+        <div className="h-full flex-1 bg-amber-500" />
+        <div className="h-full flex-1 bg-white/90" />
+        <div className="h-full flex-1 bg-emerald-600" />
+      </div>
+
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand Logo */}
+          {/* Brand Logo - Election Commission of India / SmartVote Bharat */}
           <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
-            <div className="relative p-2 rounded-xl bg-blue-600/15 border border-blue-500/30 group-hover:border-blue-400 transition-all shadow-sm shrink-0">
-              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 group-hover:scale-105 transition-transform" />
+            <div className="relative p-2 rounded-xl bg-gradient-to-br from-amber-500/20 via-blue-600/20 to-emerald-500/20 border border-amber-500/30 group-hover:border-amber-400 transition-all shadow-sm shrink-0">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 group-hover:scale-105 transition-transform" />
             </div>
             <div className="flex flex-col">
               <div className="flex items-center space-x-1.5">
-                <span className="text-lg sm:text-xl font-black tracking-tight text-white">
-                  SMARTVOTE
+                <span className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-1">
+                  <span>SMARTVOTE</span>
+                  <span className="text-amber-400">BHARAT</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 font-bold uppercase tracking-wider">
-                  Official
+                <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-bold uppercase tracking-wider">
+                  ECI Verified
                 </span>
               </div>
               <span className="text-[8px] sm:text-[9px] text-slate-400 tracking-wider uppercase font-medium">
-                National Digital Voting System
+                भारत निर्वाचन • National Digital E-Voting Portal
               </span>
             </div>
           </Link>
@@ -90,7 +100,7 @@ export default function Navbar() {
             <Link
               to="/"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               {t('nav_home')}
@@ -98,7 +108,7 @@ export default function Navbar() {
             <Link
               to="/elections"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/elections') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/elections') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               {t('nav_elections')}
@@ -106,7 +116,7 @@ export default function Navbar() {
             <Link
               to="/verify"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/verify') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/verify') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               {t('nav_verify')}
@@ -116,7 +126,7 @@ export default function Navbar() {
               <Link
                 to="/dashboard"
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/dashboard') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  isActive('/dashboard') ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                 }`}
               >
                 {t('nav_dashboard')}
@@ -137,20 +147,39 @@ export default function Navbar() {
 
           {/* Right Action Controls */}
           <div className="flex items-center space-x-1.5 sm:space-x-2.5">
-            {/* Language Selector (Laptop) */}
-            <div className="relative group hidden sm:block">
+            {/* Indian Languages Selector (Laptop) */}
+            <div className="relative hidden sm:block">
               <button
-                className="p-2 rounded-lg bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-cyan-400 transition"
-                title="Change Language"
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-200 hover:border-amber-400 transition text-xs font-semibold"
+                title="Select Indian Language"
               >
-                <Globe className="w-4 h-4" />
+                <Globe className="w-3.5 h-3.5 text-amber-400" />
+                <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.nativeName || 'English'}</span>
               </button>
-              <div className="absolute right-0 mt-2 w-32 py-1 bg-slate-900 border border-cyan-500/30 rounded-xl shadow-2xl hidden group-hover:block z-50 backdrop-blur-xl">
-                <button onClick={() => changeLanguage('en')} className={`w-full text-left px-3 py-1.5 text-xs ${lang === 'en' ? 'text-cyan-400 font-bold' : 'text-slate-300'} hover:bg-cyan-500/10`}>English</button>
-                <button onClick={() => changeLanguage('es')} className={`w-full text-left px-3 py-1.5 text-xs ${lang === 'es' ? 'text-cyan-400 font-bold' : 'text-slate-300'} hover:bg-cyan-500/10`}>Español</button>
-                <button onClick={() => changeLanguage('hi')} className={`w-full text-left px-3 py-1.5 text-xs ${lang === 'hi' ? 'text-cyan-400 font-bold' : 'text-slate-300'} hover:bg-cyan-500/10`}>हिन्दी</button>
-                <button onClick={() => changeLanguage('fr')} className={`w-full text-left px-3 py-1.5 text-xs ${lang === 'fr' ? 'text-cyan-400 font-bold' : 'text-slate-300'} hover:bg-cyan-500/10`}>Français</button>
-              </div>
+
+              {langDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 py-1.5 bg-slate-900/95 border border-amber-500/30 rounded-xl shadow-2xl z-50 backdrop-blur-xl">
+                  <div className="px-3 py-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider border-b border-slate-800">
+                    Indian Languages (भारतीय भाषाएं)
+                  </div>
+                  {SUPPORTED_LANGUAGES.map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => {
+                        changeLanguage(l.code);
+                        setLangDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition ${
+                        lang === l.code ? 'text-amber-400 font-bold bg-amber-500/10' : 'text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      <span>{l.nativeName}</span>
+                      <span className="text-[10px] font-mono uppercase text-slate-500">{l.code}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Voice Accessibility Toggle */}
@@ -158,10 +187,10 @@ export default function Navbar() {
               onClick={() => {
                 const next = !voiceEnabled;
                 setVoiceEnabled(next);
-                if (next) speak("Voice accessibility assistance activated.");
+                if (next) speak("Voice accessibility assistance activated. SmartVote Bharat official e-voting portal.");
               }}
               className={`p-2 rounded-lg border transition ${
-                voiceEnabled ? 'bg-cyan-500/20 border-cyan-400 text-cyan-400' : 'bg-slate-900/60 border-slate-700/60 text-slate-400 hover:text-slate-200'
+                voiceEnabled ? 'bg-amber-500/20 border-amber-400 text-amber-400' : 'bg-slate-900/60 border-slate-700/60 text-slate-400 hover:text-slate-200'
               }`}
               title="Voice Accessibility Reader"
             >
@@ -182,12 +211,12 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setShowNotifDrawer(!showNotifDrawer)}
-                  className="p-2 rounded-lg bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-cyan-400 transition relative"
+                  className="p-2 rounded-lg bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-amber-400 transition relative"
                   title="Notifications"
                 >
                   <Bell className="w-4 h-4" />
                   {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-cyan-500 text-slate-950 font-bold text-[10px] rounded-full flex items-center justify-center animate-pulse">
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-slate-950 font-bold text-[10px] rounded-full flex items-center justify-center animate-pulse">
                       {unreadCount}
                     </span>
                   )}
@@ -195,16 +224,16 @@ export default function Navbar() {
 
                 {/* Notifications Dropdown */}
                 {showNotifDrawer && (
-                  <div className="absolute right-0 mt-3 w-72 sm:w-88 bg-slate-900/95 border border-cyan-500/30 rounded-2xl shadow-2xl p-3 sm:p-4 z-50 backdrop-blur-2xl">
+                  <div className="absolute right-0 mt-3 w-72 sm:w-88 bg-slate-900/95 border border-amber-500/30 rounded-2xl shadow-2xl p-3 sm:p-4 z-50 backdrop-blur-2xl">
                     <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2 sm:mb-3">
                       <h4 className="text-xs sm:text-sm font-semibold text-white flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-cyan-400" /> Notifications
+                        <Bell className="w-4 h-4 text-amber-400" /> Electoral Alerts
                       </h4>
-                      <span className="text-[10px] sm:text-xs text-slate-400">{notifications.length} alerts</span>
+                      <span className="text-[10px] sm:text-xs text-slate-400">{notifications.length} notices</span>
                     </div>
                     <div className="max-h-60 sm:max-h-72 overflow-y-auto space-y-2">
                       {notifications.length === 0 ? (
-                        <p className="text-xs text-slate-400 text-center py-4">No notifications yet</p>
+                        <p className="text-xs text-slate-400 text-center py-4">No electoral notifications yet</p>
                       ) : (
                         notifications.map((n) => (
                           <div
@@ -213,13 +242,13 @@ export default function Navbar() {
                             className={`p-2 sm:p-2.5 rounded-xl border text-xs cursor-pointer transition ${
                               n.read
                                 ? 'bg-slate-800/40 border-slate-700/40 text-slate-400'
-                                : 'bg-cyan-950/30 border-cyan-500/30 text-slate-200 hover:border-cyan-400'
+                                : 'bg-amber-950/30 border-amber-500/30 text-slate-200 hover:border-amber-400'
                             }`}
                           >
-                            <div className="font-semibold text-cyan-300 mb-0.5 text-[11px] sm:text-xs">{n.title}</div>
+                            <div className="font-semibold text-amber-300 mb-0.5 text-[11px] sm:text-xs">{n.title}</div>
                             <p className="text-slate-300 text-[10px] sm:text-[11px] leading-relaxed">{n.message}</p>
-                            <span className="text-[8px] sm:text-[9px] text-slate-500 block mt-1">
-                              {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            <span className="text-[8px] sm:text-[9px] text-slate-500 block mt-1 font-mono">
+                              {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST
                             </span>
                           </div>
                         ))
@@ -233,15 +262,15 @@ export default function Navbar() {
             {/* User Profile / Auth buttons (Laptop) */}
             {isAuthenticated ? (
               <div className="hidden sm:flex items-center space-x-2 pl-2 border-l border-slate-800">
-                <div className="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-cyan-500/20">
-                  <div className="w-6 h-6 rounded-full overflow-hidden border border-cyan-400">
+                <div className="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700">
+                  <div className="w-6 h-6 rounded-full overflow-hidden border border-amber-400">
                     <img
-                      src={user?.faceImageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                      src={user?.faceImageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80'}
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <span className="text-xs font-medium text-slate-200 max-w-[90px] truncate">
+                  <span className="text-xs font-medium text-slate-200 max-w-[100px] truncate">
                     {user?.fullName?.split(' ')[0]}
                   </span>
                 </div>
@@ -263,7 +292,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   to="/register"
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-sm transition"
                 >
                   {t('nav_register')}
                 </Link>
@@ -273,7 +302,7 @@ export default function Navbar() {
             {/* Mobile Hamburger Menu Toggle (Visible on Mobile) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 hover:text-cyan-400 md:hidden transition"
+              className="p-2 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 hover:text-amber-400 md:hidden transition"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -287,18 +316,18 @@ export default function Navbar() {
         <div className="md:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
           {/* User Info on Mobile if authenticated */}
           {isAuthenticated ? (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/70 border border-cyan-500/20">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/70 border border-amber-500/20">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-cyan-400 shadow-neon-cyan shrink-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400 shrink-0">
                   <img
-                    src={user?.faceImageUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}
+                    src={user?.faceImageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80'}
                     alt="Avatar"
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-white">{user?.fullName}</div>
-                  <div className="text-[11px] text-cyan-400 font-mono">{user?.voterIdNumber || (isAdmin ? 'SYSTEM ADMINISTRATOR' : 'VERIFIED VOTER')}</div>
+                  <div className="text-[11px] text-amber-400 font-mono">{user?.voterIdNumber || (isAdmin ? 'CHIEF ELECTION COMMISSIONER' : 'VERIFIED INDIAN VOTER')}</div>
                 </div>
               </div>
               <button
@@ -320,7 +349,7 @@ export default function Navbar() {
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition"
+                className="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 shadow-sm transition"
               >
                 {t('nav_register')}
               </Link>
@@ -333,7 +362,7 @@ export default function Navbar() {
               to="/"
               onClick={() => setMobileMenuOpen(false)}
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                isActive('/') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-900'
+                isActive('/') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:bg-slate-900'
               }`}
             >
               <span>{t('nav_home')}</span>
@@ -343,7 +372,7 @@ export default function Navbar() {
               to="/elections"
               onClick={() => setMobileMenuOpen(false)}
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                isActive('/elections') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-900'
+                isActive('/elections') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:bg-slate-900'
               }`}
             >
               <span>{t('nav_elections')}</span>
@@ -353,7 +382,7 @@ export default function Navbar() {
               to="/verify"
               onClick={() => setMobileMenuOpen(false)}
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                isActive('/verify') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-900'
+                isActive('/verify') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:bg-slate-900'
               }`}
             >
               <span>{t('nav_verify')}</span>
@@ -365,7 +394,7 @@ export default function Navbar() {
                 to="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                  isActive('/dashboard') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-900'
+                  isActive('/dashboard') ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/30' : 'text-slate-300 hover:bg-slate-900'
                 }`}
               >
                 <span>{t('nav_dashboard')}</span>
@@ -382,7 +411,7 @@ export default function Navbar() {
                     isActive('/admin') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
                   }`}
                 >
-                  <span>Admin Overview</span>
+                  <span>{t('nav_admin_overview')}</span>
                   <ChevronRight className="w-4 h-4 text-slate-500" />
                 </Link>
                 <Link
@@ -392,7 +421,7 @@ export default function Navbar() {
                     isActive('/admin/elections') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
                   }`}
                 >
-                  <span>Manage Elections</span>
+                  <span>{t('nav_admin_elections')}</span>
                   <ChevronRight className="w-4 h-4 text-slate-500" />
                 </Link>
                 <Link
@@ -402,7 +431,7 @@ export default function Navbar() {
                     isActive('/admin/voters') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
                   }`}
                 >
-                  <span>Voter Registry</span>
+                  <span>{t('nav_admin_voters')}</span>
                   <ChevronRight className="w-4 h-4 text-slate-500" />
                 </Link>
                 <Link
@@ -412,35 +441,31 @@ export default function Navbar() {
                     isActive('/admin/audit') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
                   }`}
                 >
-                  <span>Cryptographic Audit</span>
+                  <span>{t('nav_admin_audit')}</span>
                   <ChevronRight className="w-4 h-4 text-slate-500" />
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Language Selector on Mobile */}
+          {/* Indian Language Selector on Mobile */}
           <div className="pt-2 border-t border-slate-800">
             <div className="text-[11px] font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-cyan-400" /> Select Language
+              <Globe className="w-3.5 h-3.5 text-amber-400" /> भारतीय भाषाएं (Select Language)
             </div>
             <div className="grid grid-cols-4 gap-1.5">
-              {[
-                { code: 'en', label: 'EN' },
-                { code: 'es', label: 'ES' },
-                { code: 'hi', label: 'HI' },
-                { code: 'fr', label: 'FR' },
-              ].map((l) => (
+              {SUPPORTED_LANGUAGES.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => changeLanguage(l.code)}
-                  className={`py-1.5 rounded-lg text-xs font-semibold border transition ${
+                  className={`py-1.5 px-1 rounded-lg text-xs font-semibold border transition text-center ${
                     lang === l.code
-                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300'
-                      : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-bold'
+                      : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white'
                   }`}
                 >
-                  {l.label}
+                  <span className="block text-[11px] leading-tight truncate">{l.name}</span>
+                  <span className="text-[9px] text-slate-500 uppercase">{l.code}</span>
                 </button>
               ))}
             </div>
@@ -463,7 +488,7 @@ export default function Navbar() {
                 if (next) speak("Voice accessibility assistance activated.");
               }}
               className={`flex items-center justify-center space-x-2 p-2 rounded-xl border text-xs font-semibold transition ${
-                voiceEnabled ? 'bg-cyan-500/20 border-cyan-400 text-cyan-400' : 'bg-slate-900/60 border-slate-800 text-slate-400'
+                voiceEnabled ? 'bg-amber-500/20 border-amber-400 text-amber-400' : 'bg-slate-900/60 border-slate-800 text-slate-400'
               }`}
             >
               {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}

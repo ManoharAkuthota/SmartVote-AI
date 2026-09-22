@@ -13,7 +13,7 @@ export default function RegisterPage() {
     email: '',
     mobileNumber: '',
     password: '',
-    voterIdNumber: 'SMV-' + Math.floor(1000000 + Math.random() * 9000000),
+    voterIdNumber: 'IND-DL-' + Math.floor(1000000 + Math.random() * 9000000),
     maskedAadhaar: 'XXXX-XXXX-' + Math.floor(1000 + Math.random() * 9000),
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -34,9 +34,9 @@ export default function RegisterPage() {
   };
 
   const validateStep1 = () => {
-    if (!formData.fullName.trim()) return 'Please enter your full legal name.';
+    if (!formData.fullName.trim()) return 'Please enter your full legal citizen name.';
     if (!formData.email.trim() || !formData.email.includes('@')) return 'Please enter a valid email address.';
-    if (!formData.mobileNumber.trim()) return 'Please enter your mobile phone number.';
+    if (!formData.mobileNumber.trim()) return 'Please enter your 10-digit mobile phone number.';
     if (!formData.password || formData.password.length < 6) return 'Password must be at least 6 characters long.';
     return null;
   };
@@ -81,7 +81,7 @@ export default function RegisterPage() {
       const res = await api.post('/auth/register', payload);
 
       if (res.data?.success) {
-        setSuccessMsg('Voter identity registration completed successfully! Redirecting to sign in...');
+        setSuccessMsg('Voter enrollment completed successfully on the National Electoral Roll! Redirecting to sign in...');
         setTimeout(() => {
           navigate('/login', { state: { email: formData.email } });
         }, 1500);
@@ -89,7 +89,7 @@ export default function RegisterPage() {
         setErrorMsg(res.data?.message || 'Registration could not be completed.');
       }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Registration failed. Email or Voter ID may already be registered.');
+      setErrorMsg(err.response?.data?.message || 'Registration failed. Email or EPIC Voter ID may already be enrolled.');
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +102,7 @@ export default function RegisterPage() {
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
           <div className="flex items-center space-x-2">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-              step >= 1 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-500'
+              step >= 1 ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-500'
             }`}>
               1
             </div>
@@ -115,7 +115,7 @@ export default function RegisterPage() {
 
           <div className="flex items-center space-x-2">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-              step >= 2 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-500'
+              step >= 2 ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-500'
             }`}>
               2
             </div>
@@ -128,7 +128,7 @@ export default function RegisterPage() {
 
           <div className="flex items-center space-x-2">
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-              step >= 3 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-500'
+              step >= 3 ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-500'
             }`}>
               3
             </div>
@@ -154,16 +154,16 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {/* STEP 1: Personal & Identity Info */}
+        {/* STEP 1: Personal & Identity Info (Form 6) */}
         {step === 1 && (
           <form onSubmit={handleNextToBiometrics} className="space-y-4">
             <div className="text-center mb-6">
-              <div className="w-12 h-12 mx-auto rounded-xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-3">
-                <Shield className="w-6 h-6 text-blue-500" />
+              <div className="w-12 h-12 mx-auto rounded-xl bg-amber-600/10 border border-amber-500/30 flex items-center justify-center mb-3">
+                <Shield className="w-6 h-6 text-amber-500" />
               </div>
-              <h2 className="text-xl font-bold text-white">Official Voter Registration</h2>
+              <h2 className="text-xl font-bold text-white">Official Voter Enrollment (Form 6)</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Enter your identity details to initialize your official digital voter record.
+                Enter your citizenship details to initialize your official digital voter record.
               </p>
             </div>
 
@@ -176,8 +176,8 @@ export default function RegisterPage() {
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  placeholder="e.g. Maya Lin"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
+                  placeholder="e.g. Rajesh Kumar Verma / Priya Sharma"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none transition"
                   required
                 />
               </div>
@@ -193,8 +193,8 @@ export default function RegisterPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    placeholder="name@domain.com"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
+                    placeholder="voter@domain.in"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none transition"
                     required
                   />
                 </div>
@@ -209,8 +209,8 @@ export default function RegisterPage() {
                     name="mobileNumber"
                     value={formData.mobileNumber}
                     onChange={handleInputChange}
-                    placeholder="+1 555-0199"
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
+                    placeholder="+91 98765 43210"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none transition"
                     required
                   />
                 </div>
@@ -227,7 +227,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="At least 6 characters"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none transition"
                   required
                 />
                 <button
@@ -242,25 +242,25 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Official Digital Identity Simulation */}
+            {/* Official Digital Identity Format */}
             <div className="p-4 rounded-xl bg-slate-950/70 border border-slate-800 space-y-3">
               <div className="flex items-center space-x-2 text-[11px] font-bold text-slate-300">
-                <CreditCard className="w-3.5 h-3.5 text-blue-400" />
-                <span>Government Identity Numbers (Pre-assigned)</span>
+                <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+                <span>Election Commission of India Identifiers (Pre-assigned)</span>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <span className="text-[10px] text-slate-400">Assigned Voter ID</span>
+                  <span className="text-[10px] text-slate-400">Assigned EPIC Voter ID</span>
                   <input
                     type="text"
                     name="voterIdNumber"
                     value={formData.voterIdNumber}
                     onChange={handleInputChange}
-                    className="w-full mt-1 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-slate-200 focus:outline-none"
+                    className="w-full mt-1 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-mono text-amber-300 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400">Government Identifier</span>
+                  <span className="text-[10px] text-slate-400">Masked Aadhaar Reference</span>
                   <input
                     type="text"
                     name="maskedAadhaar"
@@ -274,16 +274,16 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full mt-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs shadow transition flex items-center justify-center space-x-2 cursor-pointer"
+              className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:opacity-95 active:scale-[0.99] text-white font-semibold text-xs shadow transition flex items-center justify-center space-x-2 cursor-pointer"
             >
               <span>Continue to Photo Capture</span>
               <ArrowRight className="w-4 h-4" />
             </button>
 
             <div className="text-center mt-4 text-xs text-slate-400">
-              Already registered?{' '}
-              <Link to="/login" className="text-blue-400 hover:text-blue-300 font-semibold underline underline-offset-2">
-                Official Voter Sign-In
+              Already enrolled?{' '}
+              <Link to="/login" className="text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-2">
+                Official Citizen Sign-In
               </Link>
             </div>
           </form>
@@ -319,7 +319,7 @@ export default function RegisterPage() {
         {/* STEP 3: Verification Summary & Confirmation */}
         {step === 3 && (
           <div className="space-y-5 text-center">
-            <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden border-2 border-blue-500 shadow-md">
+            <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden border-2 border-amber-500 shadow-md">
               <img
                 src={biometrics.faceImageUrl}
                 alt="Captured Face"
@@ -329,16 +329,16 @@ export default function RegisterPage() {
 
             <div>
               <h3 className="text-lg font-bold text-white">{formData.fullName}</h3>
-              <p className="text-xs text-blue-400 font-medium mt-0.5">{formData.email}</p>
+              <p className="text-xs text-amber-400 font-medium mt-0.5">{formData.email}</p>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-left space-y-2.5">
               <div className="flex justify-between">
-                <span className="text-slate-400">Official Voter ID:</span>
-                <span className="text-slate-200 font-mono font-bold">{formData.voterIdNumber}</span>
+                <span className="text-slate-400">Official EPIC Voter ID:</span>
+                <span className="text-amber-300 font-mono font-bold">{formData.voterIdNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Identity Identifier:</span>
+                <span className="text-slate-400">Aadhaar Identifier:</span>
                 <span className="text-slate-200 font-mono">{formData.maskedAadhaar}</span>
               </div>
               <div className="flex justify-between">
@@ -348,8 +348,8 @@ export default function RegisterPage() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Security Standard:</span>
-                <span className="text-slate-300">256-Bit Cryptographic Ledger</span>
+                <span className="text-slate-400">Electoral Protocol:</span>
+                <span className="text-slate-300">ECI Certified Cryptographic Ledger</span>
               </div>
             </div>
 
@@ -365,15 +365,15 @@ export default function RegisterPage() {
                 type="button"
                 onClick={handleSubmitRegistration}
                 disabled={isSubmitting}
-                className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow transition disabled:opacity-50 flex items-center justify-center space-x-2"
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:opacity-95 text-white font-semibold text-xs shadow transition disabled:opacity-50 flex items-center justify-center space-x-2"
               >
                 {isSubmitting ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Enrolling Voter Record...</span>
+                    <span>Enrolling on Electoral Roll...</span>
                   </>
                 ) : (
-                  <span>Confirm & Complete Registration</span>
+                  <span>Confirm & Complete Enrollment</span>
                 )}
               </button>
             </div>
