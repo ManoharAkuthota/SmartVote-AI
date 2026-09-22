@@ -15,12 +15,49 @@ public class FaceService {
     private static final Logger log = LoggerFactory.getLogger(FaceService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${app.face.similarity-threshold:0.85}")
-    private double similarityThreshold;
+    /**
+     * Standard FaceNet/dlib/face-api.js threshold:
+     * - Same person: Euclidean distance is typically 0.15 - 0.45 (strictly <= 0.55)
+     * - Different person: Euclidean distance is typically 0.65 - 1.25 (strictly > 0.55)
+     */
+    @Value("${app.face.max-distance:0.55}")
+    private double maxDistanceThreshold;
 
     /**
-     * Calculates cosine similarity between two 128-dimensional embedding vectors.
-     * Returns a score between 0.0 and 1.0.
+     * Raw Cosine Similarity threshold (uncompressed):
+     * - Same person: Raw cosine is typically 0.90 - 0.99 (strictly >= 0.85)
+     * - Different person: Raw cosine is typically 0.20 - 0.75 (strictly < 0.85)
+     */
+    @Value("${app.face.similarity-threshold:0.85}")
+    private double minCosineThreshold;
+
+    /**
+     * Calculates Euclidean Distance between two 128-dimensional embedding vectors.
+     * d = sqrt(sum((a_i - b_i)^2))
+     */
+    public double calculateEuclideanDistance(double[] vectorA, double[] vectorB) {
+        if (vectorA == null || vectorB == null || vectorA.length == 0 || vectorB.length == 0) {
+            return Double.MAX_VALUE;
+        }
+
+        if (vectorA.length != vectorB.length) {
+            log.warn("Vector length mismatch: {} vs {}", vectorA.length, vectorB.length);
+            return Double.MAX_VALUE;
+        }
+
+        double sumSq = 0.0;
+        for (int i = 0; i < vectorA.length; i++) {
+            double diff = vectorA[i] - vectorB[i];
+            sumSq += diff * diff;
+        }
+
+        return Math.sqrt(sumSq);
+    }
+
+    /**
+     * Calculates uncompressed RAW Cosine Similarity between two 128-dimensional vectors.
+     * Cosine = (A . B) / (||A|| * ||B||)
+     * Value range: -1.0 to +1.0
      */
     public double calculateCosineSimilarity(double[] vectorA, double[] vectorB) {
         if (vectorA == null || vectorB == null || vectorA.length == 0 || vectorB.length == 0) {
@@ -38,24 +75,22 @@ public class FaceService {
 
         for (int i = 0; i < vectorA.length; i++) {
             dotProduct += vectorA[i] * vectorB[i];
-            normA += Math.pow(vectorA[i], 2);
-            normB += Math.pow(vectorB[i], 2);
+            normA += vectorA[i] * vectorA[i];
+            normB += vectorB[i] * vectorB[i];
         }
 
         if (normA == 0.0 || normB == 0.0) {
             return 0.0;
         }
 
-        double similarity = dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-        // Normalize range from [-1, 1] to [0, 1] for intuitive percentage
-        return Math.max(0.0, Math.min(1.0, (similarity + 1.0) / 2.0));
+        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
     public boolean isMatch(String storedEmbeddingJson, List<Double> liveEmbedding) {
-        return isMatch(storedEmbeddingJson, liveEmbedding, this.similarityThreshold);
+        return isMatch(storedEmbeddingJson, liveEmbedding, this.maxDistanceThreshold, this.minCosineThreshold);
     }
 
-    public boolean isMatch(String storedEmbeddingJson, List<Double> liveEmbedding, double threshold) {
+    public boolean isMatch(String storedEmbeddingJson, List<Double> liveEmbedding, double maxDistance, double minCosine) {
         if (storedEmbeddingJson == null || storedEmbeddingJson.isBlank() || liveEmbedding == null || liveEmbedding.isEmpty()) {
             return false;
         }
@@ -70,12 +105,24 @@ public class FaceService {
             double[] vecA = storedList.stream().mapToDouble(Double::doubleValue).toArray();
             double[] vecB = liveEmbedding.stream().mapToDouble(Double::doubleValue).toArray();
 
-            double similarity = calculateCosineSimilarity(vecA, vecB);
-            log.info("Face biometric similarity evaluated: {}% [Score: {}] (Required Threshold: {}%)",
-                    String.format("%.2f", similarity * 100),
-                    String.format("%.4f", similarity),
-                    String.format("%.0f", threshold * 100));
-            return similarity >= threshold;
+            double distance = calculateEuclideanDistance(vecA, vecB);
+            double rawCosine = calculateCosineSimilarity(vecA, vecB);
+
+            // DUAL VERIFICATION:
+            // 1. Euclidean distance must be <= maxDistance (0.55)
+            // 2. Raw cosine similarity must be >= minCosine (0.85)
+            boolean distanceMatch = distance <= maxDistance;
+            boolean cosineMatch = rawCosine >= minCosine;
+            boolean match = distanceMatch && cosineMatch;
+
+            log.info("Face Biometric Verification -> Euclidean Distance: {} (Max Allowed: {}), Raw Cosine: {} (Min Required: {}) -> RESULT: {}",
+                    String.format("%.4f", distance),
+                    String.format("%.4f", maxDistance),
+                    String.format("%.4f", rawCosine),
+                    String.format("%.4f", minCosine),
+                    match ? "MATCH CONFIRMED (SAME PERSON)" : "MISMATCH REJECTED (DIFFERENT PERSON)");
+
+            return match;
         } catch (Exception e) {
             log.error("Failed to parse and compare face embeddings: {}", e.getMessage());
             return false;
@@ -100,6 +147,10 @@ public class FaceService {
     }
 
     public double getSimilarityThreshold() {
-        return similarityThreshold;
+        return minCosineThreshold;
+    }
+
+    public double getMaxDistanceThreshold() {
+        return maxDistanceThreshold;
     }
 }

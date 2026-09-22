@@ -11,6 +11,8 @@ export default function FaceScanner({
   const { t, speak, voiceEnabled } = useLanguage();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const latestDescriptorRef = useRef(null);
+  const latestScoreRef = useRef(0.96);
 
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [streamActive, setStreamActive] = useState(false);
@@ -55,7 +57,7 @@ export default function FaceScanner({
         } catch (err) {
           console.warn("Camera access unavailable:", err.message);
           if (mounted) {
-            setCameraError("Camera unavailable or permission denied. You can switch to Simulated Biometrics mode.");
+            setCameraError("Camera unavailable or permission denied. You can switch to Demonstration Simulation mode.");
             setStreamActive(false);
           }
         }
@@ -91,6 +93,7 @@ export default function FaceScanner({
         if (res.status === 'MULTIPLE_FACES') {
           setMultipleFacesAlert(true);
           setFaceDetected(false);
+          latestDescriptorRef.current = null;
           return;
         }
 
@@ -98,12 +101,17 @@ export default function FaceScanner({
 
         if (res.status === 'NO_FACE') {
           setFaceDetected(false);
+          latestDescriptorRef.current = null;
           return;
         }
 
-        if (res.status === 'SUCCESS') {
+        if (res.status === 'SUCCESS' && res.descriptor) {
+          // Lock in real biometric descriptor
+          latestDescriptorRef.current = res.descriptor;
+          latestScoreRef.current = res.confidence || 0.96;
           setFaceDetected(true);
           setConfidenceScore(Math.round(res.confidence * 100));
+          setCameraError(null);
 
           // Draw subtle outline on canvas
           if (canvasRef.current && videoRef.current) {
@@ -137,30 +145,36 @@ export default function FaceScanner({
     return () => clearInterval(intervalId);
   }, [streamActive, completed, blinkPassed, headTurnPassed, simulatedMode]);
 
-  // QUICK PHOTO CAPTURE (Instant 1-Click Snapshot)
+  // QUICK PHOTO CAPTURE (Strict Real Biometric Snapshot)
   const handleQuickPhotoCapture = async () => {
     if (isProcessing || completed) return;
-    setIsProcessing(true);
 
-    let descriptor = null;
-    let score = 0.96;
+    let descriptor = latestDescriptorRef.current;
+    let score = latestScoreRef.current;
 
-    // Try extracting real face embedding from current video frame
-    if (videoRef.current && videoRef.current.readyState >= 2) {
+    // If descriptor is not already cached, attempt an immediate direct scan
+    if (!descriptor && videoRef.current && videoRef.current.readyState >= 2) {
+      setIsProcessing(true);
       try {
         const detection = await detectFaceWithBiometrics(videoRef.current);
         if (detection && detection.descriptor) {
           descriptor = detection.descriptor;
           score = detection.confidence || 0.96;
+          latestDescriptorRef.current = descriptor;
         }
       } catch (e) {
-        console.warn("Using fallback descriptor:", e);
+        console.warn("Direct biometric scan failed:", e);
       }
     }
 
+    // STRICT VALIDATION: Refuse to submit without a real detected face
     if (!descriptor) {
-      descriptor = generateMockEmbedding('voter_photo_' + Date.now());
+      setIsProcessing(false);
+      setCameraError("No face detected! Please center your face inside the oval and ensure proper lighting.");
+      return;
     }
+
+    setIsProcessing(true);
 
     // Capture snapshot image from video stream
     let faceImageUrl = '';
@@ -185,7 +199,7 @@ export default function FaceScanner({
     setHeadTurnPassed(true);
     setCompleted(true);
 
-    if (voiceEnabled) speak("Photo captured and identity verified.");
+    if (voiceEnabled) speak("Photo captured and biometric identity locked.");
 
     setTimeout(() => {
       onSuccess({
@@ -260,12 +274,12 @@ export default function FaceScanner({
         {!completed && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
             <div className={`w-52 h-64 sm:w-60 sm:h-72 rounded-full border-2 ${
-              faceDetected ? 'border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.25)]' : 'border-blue-500/70 border-dashed'
+              faceDetected ? 'border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.35)]' : 'border-blue-500/70 border-dashed'
             } transition-all duration-300 flex items-end justify-center pb-4`}>
-              <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full ${
-                faceDetected ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/50' : 'bg-slate-900/80 text-slate-300 border border-slate-700'
+              <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-md ${
+                faceDetected ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/60' : 'bg-slate-900/85 text-slate-300 border border-slate-700'
               }`}>
-                {faceDetected ? "Face Positioned" : "Center Face Inside Oval"}
+                {faceDetected ? "✅ Face Biometric Locked" : "Center Face Inside Oval"}
               </span>
             </div>
           </div>
@@ -275,7 +289,7 @@ export default function FaceScanner({
         <div className="absolute top-3 inset-x-3 flex items-center justify-between z-30 pointer-events-none">
           <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-900/85 border border-slate-700 text-xs font-medium text-slate-200 backdrop-blur-md">
             <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-            <span>Official Identity Capture</span>
+            <span>Biometric Identification</span>
           </div>
 
           <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900/85 border border-slate-700 text-xs text-slate-300 backdrop-blur-md">
@@ -284,26 +298,27 @@ export default function FaceScanner({
           </div>
         </div>
 
-        {/* Multiple Faces Notice */}
+        {/* Multiple Faces Alert */}
         {multipleFacesAlert && (
           <div className="absolute inset-x-4 top-14 p-2.5 bg-rose-950/90 border border-rose-500 rounded-xl flex items-center space-x-2 text-rose-200 text-xs z-40 backdrop-blur-md">
             <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-            <span>Multiple faces detected. Please ensure only 1 person is in frame.</span>
+            <span>Multiple faces detected. Please ensure only 1 person is in front of the camera.</span>
           </div>
         )}
 
-        {/* Camera Error Fallback Modal */}
+        {/* Camera Warning / Error Alert */}
         {cameraError && !simulatedMode && (
-          <div className="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center p-6 text-center z-40">
-            <VideoOff className="w-10 h-10 text-amber-400 mb-2" />
-            <h4 className="text-sm font-semibold text-white">Camera Access Notice</h4>
-            <p className="text-xs text-slate-400 mt-1 max-w-sm">{cameraError}</p>
+          <div className="absolute inset-x-4 top-14 p-2.5 bg-rose-950/95 border border-rose-500 rounded-xl flex items-center justify-between text-rose-200 text-xs z-40 backdrop-blur-md shadow-lg">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>{cameraError}</span>
+            </div>
             <button
               type="button"
-              onClick={() => setSimulatedMode(true)}
-              className="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow transition"
+              onClick={() => setCameraError(null)}
+              className="text-[10px] text-rose-300 hover:text-white underline ml-2 shrink-0 font-semibold"
             >
-              Switch to Demonstration Biometrics
+              Dismiss
             </button>
           </div>
         )}
@@ -314,8 +329,8 @@ export default function FaceScanner({
             <div className="w-14 h-14 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center mb-2">
               <CheckCircle2 className="w-8 h-8 text-emerald-400" />
             </div>
-            <h3 className="text-sm font-bold text-white">Photo Captured & Verified</h3>
-            <span className="text-xs text-emerald-400 font-medium mt-0.5">Biometric Confidence: {confidenceScore || 98}%</span>
+            <h3 className="text-sm font-bold text-white">Biometric Face Profile Locked</h3>
+            <span className="text-xs text-emerald-400 font-medium mt-0.5">Confidence: {confidenceScore || 98}%</span>
           </div>
         )}
       </div>
@@ -327,10 +342,20 @@ export default function FaceScanner({
             type="button"
             onClick={handleQuickPhotoCapture}
             disabled={isProcessing || completed}
-            className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md flex items-center justify-center space-x-2.5 transition transform active:scale-98 cursor-pointer disabled:opacity-50"
+            className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm shadow-md flex items-center justify-center space-x-2.5 transition transform active:scale-98 cursor-pointer disabled:opacity-50 ${
+              faceDetected
+                ? 'bg-blue-600 hover:bg-blue-700 text-white ring-2 ring-blue-400/40 shadow-blue-500/20'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+            }`}
           >
-            <Camera className="w-5 h-5 text-white" />
-            <span>{isProcessing ? "Verifying Photo..." : "📸 Take Photo Now"}</span>
+            <Camera className="w-5 h-5" />
+            <span>
+              {isProcessing
+                ? "Verifying Biometrics..."
+                : faceDetected
+                ? "📸 Take Photo Now (Face Locked)"
+                : "📸 Center Face in Oval to Capture"}
+            </span>
           </button>
         ) : (
           <button
@@ -352,7 +377,7 @@ export default function FaceScanner({
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
               {faceDetected && <Check className="w-3 h-3" />} Position
             </div>
-            <div className="text-[10px] opacity-80">{faceDetected ? 'Centered' : 'Look Straight'}</div>
+            <div className="text-[10px] opacity-80">{faceDetected ? 'Face Locked' : 'Looking for Face'}</div>
           </div>
 
           <div className={`p-2 rounded-lg border text-center transition ${
@@ -361,16 +386,16 @@ export default function FaceScanner({
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
               {blinkPassed && <Check className="w-3 h-3" />} Liveness
             </div>
-            <div className="text-[10px] opacity-80">{blinkPassed ? 'Confirmed' : 'Blink / Turn'}</div>
+            <div className="text-[10px] opacity-80">{blinkPassed ? 'Active' : 'Blink / Turn'}</div>
           </div>
 
           <div className={`p-2 rounded-lg border text-center transition ${
             completed ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-400' : 'bg-slate-900 border-slate-800 text-slate-400'
           }`}>
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
-              {completed && <Check className="w-3 h-3" />} Photo
+              {completed && <Check className="w-3 h-3" />} Biometrics
             </div>
-            <div className="text-[10px] opacity-80">{completed ? 'Verified' : 'Ready to Snap'}</div>
+            <div className="text-[10px] opacity-80">{completed ? 'Verified' : 'Pending Capture'}</div>
           </div>
         </div>
 
