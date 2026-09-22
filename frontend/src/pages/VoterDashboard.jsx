@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Vote, Clock, CheckCircle2, FileText, ExternalLink, Calendar, AlertCircle, RefreshCw, UserCheck } from 'lucide-react';
+import { ShieldCheck, Vote, Clock, CheckCircle2, FileText, ExternalLink, Calendar, AlertCircle, RefreshCw, UserCheck, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import VoteReceiptModal from '../components/VoteReceiptModal';
 import api from '../services/api';
 
 export default function VoterDashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState('active'); // 'active', 'upcoming', 'history'
@@ -77,18 +77,29 @@ export default function VoterDashboard() {
           </div>
         </div>
 
-        {/* Quick Voter Stats */}
-        <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
-          <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center min-w-[120px]">
-            <span className="text-xs text-slate-400">Ballots Cast</span>
-            <div className="text-2xl font-black text-amber-400 font-mono mt-1">{history.length}</div>
-          </div>
-          <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 text-center min-w-[120px]">
-            <span className="text-xs text-slate-400">Available Ballots</span>
-            <div className="text-2xl font-black text-emerald-400 font-mono mt-1">
-              {activeElections.filter((e) => !e.hasVoted).length}
+        {/* Quick Voter Stats & Sign Out Action */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+          <div className="grid grid-cols-2 gap-3 w-full sm:w-auto">
+            <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-center min-w-[110px]">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Ballots Cast</span>
+              <div className="text-xl font-black text-amber-600 dark:text-amber-400 font-mono mt-0.5">{history.length}</div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-center min-w-[110px]">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Available</span>
+              <div className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">
+                {activeElections.filter((e) => !e.hasVoted).length}
+              </div>
             </div>
           </div>
+
+          <button
+            onClick={logout}
+            className="w-full sm:w-auto py-3 px-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold transition flex items-center justify-center space-x-2 shadow-sm cursor-pointer"
+            title="Sign Out of Voter Account"
+          >
+            <LogOut className="w-4 h-4 shrink-0" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
 

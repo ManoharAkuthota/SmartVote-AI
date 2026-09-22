@@ -3,8 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { SidebarProvider } from './context/SidebarContext';
 
 import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import MobileBottomNav from './components/MobileBottomNav';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,10 +28,16 @@ export default function App() {
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <div className="flex flex-col min-h-screen app-container transition-colors duration-200 selection:bg-cyan-500/30 selection:text-cyan-700 dark:selection:text-cyan-300">
-              <Navbar />
-              <main className="flex-1 pb-24 md:pb-8">
+          <SidebarProvider>
+            <BrowserRouter>
+              <div className="flex min-h-screen app-container transition-colors duration-200 selection:bg-amber-500/30 selection:text-amber-700 dark:selection:text-amber-300">
+                {/* Responsive Portal Sidebar (Desktop Dock + Mobile Drawer) */}
+                <Sidebar />
+
+                {/* Main Content Viewport */}
+                <div className="flex-1 flex flex-col min-w-0">
+                  <Navbar />
+                  <main className="flex-1 pb-24 md:pb-8">
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/" element={<LandingPage />} />
@@ -97,9 +105,11 @@ export default function App() {
               <Footer />
               <MobileBottomNav />
             </div>
-          </BrowserRouter>
-        </AuthProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+          </div>
+        </BrowserRouter>
+      </SidebarProvider>
+    </AuthProvider>
+  </LanguageProvider>
+</ThemeProvider>
   );
 }

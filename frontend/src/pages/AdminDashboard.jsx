@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Vote, ShieldAlert, Activity, CheckCircle2, UserX, BarChart3, Clock, ArrowUpRight, RefreshCw, FileText } from 'lucide-react';
+import { Users, Vote, ShieldAlert, Activity, CheckCircle2, UserX, BarChart3, Clock, ArrowUpRight, RefreshCw, FileText, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import StatCard from '../components/StatCard';
 import api from '../services/api';
 
 export default function AdminDashboard() {
+  const { logout } = useAuth();
   const [analytics, setAnalytics] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -73,6 +75,14 @@ export default function AdminDashboard() {
           >
             Security Audit
           </Link>
+          <button
+            onClick={logout}
+            className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold transition shadow-sm cursor-pointer"
+            title="Sign Out of Commissioner Session"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </div>
 

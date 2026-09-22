@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Bell, Globe, Sun, Moon, Volume2, VolumeX, LogOut, User, CheckCircle, AlertTriangle, Menu, X, ChevronRight, Vote, ShieldCheck, LayoutDashboard } from 'lucide-react';
+import { Shield, Bell, Globe, Sun, Moon, Volume2, VolumeX, LogOut, User, CheckCircle, AlertTriangle, Menu, X, ChevronRight, Vote, ShieldCheck, LayoutDashboard, PanelLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage, SUPPORTED_LANGUAGES } from '../context/LanguageContext';
+import { useSidebar } from '../context/SidebarContext';
 import api from '../services/api';
 
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { lang, changeLanguage, t, speak, voiceEnabled, setVoiceEnabled } = useLanguage();
+  const { toggleMobileSidebar, toggleCollapse, isCollapsed } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -74,8 +76,18 @@ export default function Navbar() {
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand Logo - Election Commission of India / SmartVote Bharat */}
-          <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
+          {/* Left: Sidebar Toggle Button & Brand Logo */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <button
+              onClick={toggleMobileSidebar}
+              className="p-2 rounded-xl bg-slate-900/60 dark:bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:text-amber-400 hover:border-amber-400/40 transition shadow-sm"
+              title="Toggle Portal Sidebar"
+              aria-label="Toggle Portal Sidebar"
+            >
+              <PanelLeft className="w-5 h-5 text-amber-500" />
+            </button>
+
+            <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
             <div className="relative p-2 rounded-xl bg-gradient-to-br from-amber-500/20 via-blue-600/20 to-emerald-500/20 border border-amber-500/30 group-hover:border-amber-400 transition-all shadow-sm shrink-0">
               <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 group-hover:scale-105 transition-transform" />
             </div>
@@ -94,6 +106,7 @@ export default function Navbar() {
               </span>
             </div>
           </Link>
+        </div>
 
           {/* Center Links (Laptop & Desktop) */}
           <div className="hidden md:flex items-center space-x-1">
@@ -261,32 +274,38 @@ export default function Navbar() {
 
             {/* User Profile / Auth buttons (Laptop) */}
             {isAuthenticated ? (
-              <div className="hidden sm:flex items-center space-x-2 pl-2 border-l border-slate-800">
-                <div className="flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700">
-                  <div className="w-6 h-6 rounded-full overflow-hidden border border-amber-400">
+              <div className="hidden sm:flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+                <Link
+                  to={isAdmin ? '/admin' : '/dashboard'}
+                  className="flex items-center space-x-2 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/80 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition"
+                  title="View Portal Dashboard"
+                >
+                  <div className="w-6 h-6 rounded-full overflow-hidden border border-amber-400 shrink-0">
                     <img
                       src={user?.faceImageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80'}
                       alt="Avatar"
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <span className="text-xs font-medium text-slate-200 max-w-[100px] truncate">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">
                     {user?.fullName?.split(' ')[0]}
                   </span>
-                </div>
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="p-2 rounded-lg bg-rose-950/30 border border-rose-500/30 text-rose-400 hover:bg-rose-900/40 transition"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-xs shadow-sm transition cursor-pointer"
                   title={t('nav_logout')}
+                  aria-label={t('nav_logout')}
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4 shrink-0" />
+                  <span>{t('nav_logout')}</span>
                 </button>
               </div>
             ) : (
               <div className="hidden sm:flex items-center space-x-2">
                 <Link
                   to="/login"
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
                 >
                   {t('nav_login')}
                 </Link>
@@ -302,7 +321,7 @@ export default function Navbar() {
             {/* Mobile Hamburger Menu Toggle (Visible on Mobile) */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-900/80 border border-slate-700 text-slate-200 hover:text-amber-400 md:hidden transition"
+              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-500 md:hidden transition"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -313,10 +332,10 @@ export default function Navbar() {
 
       {/* Mobile Drawer / Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
+        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
           {/* User Info on Mobile if authenticated */}
           {isAuthenticated ? (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900/70 border border-amber-500/20">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-amber-500/20 space-y-2.5">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400 shrink-0">
                   <img
@@ -325,16 +344,17 @@ export default function Navbar() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <div>
-                  <div className="text-sm font-semibold text-white">{user?.fullName}</div>
-                  <div className="text-[11px] text-amber-400 font-mono">{user?.voterIdNumber || (isAdmin ? 'CHIEF ELECTION COMMISSIONER' : 'VERIFIED INDIAN VOTER')}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user?.fullName}</div>
+                  <div className="text-[11px] text-amber-600 dark:text-amber-400 font-mono truncate">{user?.voterIdNumber || (isAdmin ? 'CHIEF ELECTION COMMISSIONER' : 'VERIFIED INDIAN VOTER')}</div>
                 </div>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg bg-rose-950/40 border border-rose-500/40 text-rose-400 hover:bg-rose-900/50 text-xs flex items-center gap-1"
+                className="w-full py-2.5 px-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center space-x-2 hover:bg-rose-500/25 transition shadow-sm cursor-pointer"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-4 h-4 shrink-0" />
+                <span>{t('nav_logout')} (Sign Out)</span>
               </button>
             </div>
           ) : (
