@@ -162,7 +162,7 @@ export default function FaceScanner({
 
   // QUICK PHOTO CAPTURE (Strict Real Biometric Snapshot)
   const handleQuickPhotoCapture = async () => {
-    if (isProcessing || completed) return;
+    if (isProcessing || completed || isVerifying) return;
 
     let descriptor = latestDescriptorRef.current;
     let score = latestScoreRef.current;
@@ -185,7 +185,7 @@ export default function FaceScanner({
     // STRICT VALIDATION: Refuse to submit without a real detected face
     if (!descriptor) {
       setIsProcessing(false);
-      setCameraError("No face detected! Please center your face inside the oval and ensure proper lighting.");
+      setCameraError("No face detected! Please position your face inside the oval guide and ensure good lighting.");
       return;
     }
 
@@ -214,7 +214,7 @@ export default function FaceScanner({
     setHeadTurnPassed(true);
     setCompleted(true);
 
-    if (voiceEnabled) speak("Photo captured and biometric identity locked.");
+    if (voiceEnabled) speak("Photo captured. Verifying biometric identity.");
 
     setTimeout(() => {
       onSuccess({
@@ -226,7 +226,7 @@ export default function FaceScanner({
         headTurnDetected: true,
       });
       setIsProcessing(false);
-    }, 400);
+    }, 350);
   };
 
   const triggerSimulatedBiometrics = () => {
@@ -253,7 +253,7 @@ export default function FaceScanner({
         headTurnDetected: true,
       });
       setIsProcessing(false);
-    }, 400);
+    }, 350);
   };
 
   return (
@@ -274,7 +274,7 @@ export default function FaceScanner({
             <Sparkles className="w-12 h-12 text-blue-400 mb-2" />
             <h4 className="text-sm font-bold text-white">Demonstration Biometric Mode Active</h4>
             <p className="text-xs text-slate-400 mt-1 max-w-xs">
-              Hardware webcam bypassed. Click the button below to confirm demo identity.
+              Hardware webcam bypassed. Click below to proceed with demo profile.
             </p>
           </div>
         )}
@@ -286,15 +286,27 @@ export default function FaceScanner({
         />
 
         {/* Official Passport / ID Oval Face Guide */}
-        {!completed && !externalError && (
+        {!completed && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
             <div className={`w-52 h-64 sm:w-60 sm:h-72 rounded-full border-2 ${
-              faceDetected ? 'border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.35)]' : 'border-blue-500/70 border-dashed'
+              externalError
+                ? 'border-rose-500 shadow-[0_0_25px_rgba(244,63,94,0.35)]'
+                : faceDetected
+                ? 'border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.35)]'
+                : 'border-blue-500/70 border-dashed'
             } transition-all duration-300 flex items-end justify-center pb-4`}>
               <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-md ${
-                faceDetected ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/60' : 'bg-slate-900/85 text-slate-300 border border-slate-700'
+                externalError
+                  ? 'bg-rose-950/90 text-rose-300 border border-rose-500/60'
+                  : faceDetected
+                  ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/60'
+                  : 'bg-slate-900/85 text-slate-300 border border-slate-700'
               }`}>
-                {faceDetected ? "✅ Face Biometric Locked" : "Center Face Inside Oval"}
+                {externalError
+                  ? "⚠️ Face Mismatch - Adjust Angle"
+                  : faceDetected
+                  ? "✅ Face Positioned & Locked"
+                  : "Position Face Inside Oval"}
               </span>
             </div>
           </div>
@@ -317,12 +329,12 @@ export default function FaceScanner({
         {multipleFacesAlert && (
           <div className="absolute inset-x-4 top-14 p-2.5 bg-rose-950/90 border border-rose-500 rounded-xl flex items-center space-x-2 text-rose-200 text-xs z-40 backdrop-blur-md">
             <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-            <span>Multiple faces detected. Please ensure only 1 person is in front of the camera.</span>
+            <span>Multiple faces detected. Ensure only 1 person is in front of the camera.</span>
           </div>
         )}
 
         {/* Camera Warning / Error Alert */}
-        {cameraError && !simulatedMode && !externalError && (
+        {cameraError && !simulatedMode && (
           <div className="absolute inset-x-4 top-14 p-2.5 bg-rose-950/95 border border-rose-500 rounded-xl flex items-center justify-between text-rose-200 text-xs z-40 backdrop-blur-md shadow-lg">
             <div className="flex items-center space-x-2">
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
@@ -341,74 +353,53 @@ export default function FaceScanner({
         {/* Verification in Progress Spinner Overlay */}
         {isVerifying && (
           <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center z-40 p-6 text-center">
-            <div className="w-14 h-14 rounded-full bg-blue-500/20 border-2 border-blue-500 flex items-center justify-center mb-3">
-              <RefreshCw className="w-7 h-7 text-blue-400 animate-spin" />
+            <div className="w-12 h-12 rounded-full bg-blue-500/20 border-2 border-blue-500 flex items-center justify-center mb-3">
+              <RefreshCw className="w-6 h-6 text-blue-400 animate-spin" />
             </div>
             <h3 className="text-sm font-bold text-white">Verifying Biometric Profile</h3>
-            <p className="text-xs text-slate-300 mt-1">Comparing 128-D facial descriptor with enrolled database...</p>
-          </div>
-        )}
-
-        {/* Verification Mismatch / Error Overlay with Retake Action */}
-        {externalError && (
-          <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center z-50 animate-fadeIn">
-            <div className="w-12 h-12 rounded-full bg-rose-500/20 border-2 border-rose-500 flex items-center justify-center mb-2.5">
-              <AlertCircle className="w-6 h-6 text-rose-400" />
-            </div>
-            <h4 className="text-sm font-bold text-white">Biometric Match Unconfirmed</h4>
-            <p className="text-xs text-rose-200 mt-1 max-w-xs leading-relaxed">
-              {externalError}
-            </p>
-            <div className="my-3 p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400 text-left w-full max-w-xs space-y-1">
-              <p className="font-semibold text-slate-200">Tips for successful verification:</p>
-              <p>• Avoid strong backlight (window directly behind you)</p>
-              <p>• Ensure face is evenly lit and looks directly at lens</p>
-              <p>• Remove hats, dark glasses, or masks</p>
-            </div>
-            <button
-              type="button"
-              onClick={handleResetCamera}
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition flex items-center space-x-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>Retake Photo & Try Again</span>
-            </button>
-          </div>
-        )}
-
-        {/* Completion Confirmation Overlay (Only when NOT verifying and NO error) */}
-        {completed && !isVerifying && !externalError && (
-          <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center z-40">
-            <div className="w-14 h-14 rounded-full bg-emerald-500/20 border-2 border-emerald-500 flex items-center justify-center mb-2">
-              <CheckCircle2 className="w-8 h-8 text-emerald-400" />
-            </div>
-            <h3 className="text-sm font-bold text-white">Biometric Face Profile Locked</h3>
-            <span className="text-xs text-emerald-400 font-medium mt-0.5">Biometric Confidence: {confidenceScore || 98}%</span>
+            <p className="text-xs text-slate-300 mt-1">Authenticating against cryptographic ledger record...</p>
           </div>
         )}
       </div>
 
-      {/* PRIMARY QUICK CAPTURE BUTTON */}
-      <div className="w-full mt-4 space-y-2.5">
-        {!simulatedMode ? (
+      {/* PRIMARY ACTION BUTTONS */}
+      <div className="w-full mt-4 space-y-3">
+        {/* If verification failed, show clear Retake button */}
+        {externalError ? (
+          <button
+            type="button"
+            onClick={handleResetCamera}
+            className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md flex items-center justify-center space-x-2 transition transform active:scale-98 cursor-pointer ring-2 ring-blue-400/40"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Retake Photo & Try Again</span>
+          </button>
+        ) : isVerifying ? (
+          <button
+            type="button"
+            disabled
+            className="w-full py-3.5 px-6 rounded-xl bg-blue-600/70 text-white font-bold text-sm shadow flex items-center justify-center space-x-2 cursor-wait"
+          >
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span>Verifying Identity...</span>
+          </button>
+        ) : !simulatedMode ? (
           <button
             type="button"
             onClick={handleQuickPhotoCapture}
-            disabled={isProcessing || completed || isVerifying}
-            className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm shadow-md flex items-center justify-center space-x-2.5 transition transform active:scale-98 cursor-pointer disabled:opacity-50 ${
+            disabled={isProcessing || (!faceDetected && !completed)}
+            className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm shadow-md flex items-center justify-center space-x-2.5 transition transform active:scale-98 cursor-pointer ${
               faceDetected
                 ? 'bg-blue-600 hover:bg-blue-700 text-white ring-2 ring-blue-400/40 shadow-blue-500/20'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                : 'bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed opacity-80'
             }`}
           >
             <Camera className="w-5 h-5" />
             <span>
-              {isVerifying
-                ? "Verifying Biometrics..."
-                : isProcessing
+              {isProcessing
                 ? "Processing Snapshot..."
                 : faceDetected
-                ? "📸 Take Photo Now (Face Locked)"
+                ? "📸 Take Photo Now"
                 : "📸 Center Face in Oval to Capture"}
             </span>
           </button>
@@ -416,11 +407,11 @@ export default function FaceScanner({
           <button
             type="button"
             onClick={triggerSimulatedBiometrics}
-            disabled={isProcessing || completed || isVerifying}
+            disabled={isProcessing}
             className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow flex items-center justify-center space-x-2 transition"
           >
             <ShieldCheck className="w-5 h-5" />
-            <span>{isVerifying ? "Verifying..." : "Confirm Demonstration Identity"}</span>
+            <span>Confirm Demonstration Identity</span>
           </button>
         )}
 
@@ -432,7 +423,7 @@ export default function FaceScanner({
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
               {faceDetected && <Check className="w-3 h-3" />} Position
             </div>
-            <div className="text-[10px] opacity-80">{faceDetected ? 'Face Locked' : 'Looking for Face'}</div>
+            <div className="text-[10px] opacity-80">{faceDetected ? 'Centered' : 'Align Face'}</div>
           </div>
 
           <div className={`p-2 rounded-lg border text-center transition ${
@@ -445,14 +436,35 @@ export default function FaceScanner({
           </div>
 
           <div className={`p-2 rounded-lg border text-center transition ${
-            completed && !externalError ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-400' : 'bg-slate-900 border-slate-800 text-slate-400'
+            externalError
+              ? 'bg-rose-950/30 border-rose-500/40 text-rose-400'
+              : completed && !externalError
+              ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-400'
+              : 'bg-slate-900 border-slate-800 text-slate-400'
           }`}>
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
               {completed && !externalError && <Check className="w-3 h-3" />} Biometrics
             </div>
-            <div className="text-[10px] opacity-80">{completed && !externalError ? 'Verified' : 'Pending Capture'}</div>
+            <div className="text-[10px] opacity-80">
+              {externalError ? 'Retry Needed' : completed ? 'Captured' : 'Ready'}
+            </div>
           </div>
         </div>
+
+        {/* Helpful Tips Display when an error occurs */}
+        {externalError && (
+          <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 text-left space-y-1">
+            <div className="flex items-center space-x-1.5 font-semibold text-blue-400 text-[11px]">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Tips for accurate facial matching:</span>
+            </div>
+            <ul className="text-[11px] text-slate-400 space-y-0.5 list-disc list-inside">
+              <li>Ensure good front lighting on your face (avoid strong window backlighting)</li>
+              <li>Hold your camera straight at eye level</li>
+              <li>Remove glasses or hats if you enrolled without them</li>
+            </ul>
+          </div>
+        )}
 
         {/* Secondary Switch Mode */}
         <div className="text-center pt-1">

@@ -121,7 +121,7 @@ export default function LoginPage() {
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-slate-900/90 border border-slate-700 shadow-xl backdrop-blur-xl">
         {/* Error Alert */}
-        {errorMsg && (
+        {errorMsg && step === 1 && (
           <div className="mb-6 p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 flex items-center space-x-2 text-rose-200 text-xs">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
             <span>{errorMsg}</span>
@@ -235,12 +235,22 @@ export default function LoginPage() {
         {/* STEP 2: Facial Biometric Verification */}
         {step === 2 && (
           <div>
-            <div className="text-center mb-5">
+            <div className="text-center mb-4">
               <h2 className="text-xl font-bold text-white">Biometric Identity Verification</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Position your face within the frame and click <strong>Take Photo Now</strong> to verify.
+                Position your face within the oval guide to verify against your enrolled profile.
               </p>
             </div>
+
+            {errorMsg && (
+              <div className="mb-4 p-3 rounded-xl bg-rose-950/80 border border-rose-500/50 flex items-start space-x-2.5 text-rose-200 text-xs text-left shadow-lg">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-rose-300">Biometric Identity Unconfirmed</p>
+                  <p className="text-[11px] text-rose-200/90 leading-relaxed">{errorMsg}</p>
+                </div>
+              </div>
+            )}
 
             <FaceScanner
               mode="login"
