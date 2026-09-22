@@ -53,8 +53,14 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seedUsers() {
-        // Seed Chief Election Commissioner / Admin if not present
-        if (userRepository.findByEmail("admin@smartvote.ai").isEmpty()) {
+        // Seed or Update Chief Election Commissioner / Admin
+        userRepository.findByEmail("admin@smartvote.ai").ifPresentOrElse(admin -> {
+            admin.setFullName("Chief Election Commissioner (Admin)");
+            admin.setVoterIdNumber("ECI-HQ-ADM01");
+            admin.setMobileNumber("+91-9876543210");
+            userRepository.save(admin);
+            log.info("Updated Indian Election Commission Admin: admin@smartvote.ai (ECI-HQ-ADM01)");
+        }, () -> {
             User admin = new User();
             admin.setFullName("Chief Election Commissioner (Admin)");
             admin.setEmail("admin@smartvote.ai");
@@ -68,10 +74,16 @@ public class DataInitializer implements CommandLineRunner {
             admin.setFailedLoginAttempts(0);
             userRepository.save(admin);
             log.info("Initialized default Indian Election Commission Admin: admin@smartvote.ai / Admin@123");
-        }
+        });
 
-        // Seed Sample Citizen Voter if not present
-        if (userRepository.findByEmail("voter@smartvote.ai").isEmpty()) {
+        // Seed or Update Sample Indian Citizen Voter
+        userRepository.findByEmail("voter@smartvote.ai").ifPresentOrElse(voter -> {
+            voter.setFullName("Rajesh Kumar Verma");
+            voter.setVoterIdNumber("IND-DL-8941205");
+            voter.setMobileNumber("+91-9876543211");
+            userRepository.save(voter);
+            log.info("Updated Indian Citizen Voter: voter@smartvote.ai (IND-DL-8941205)");
+        }, () -> {
             User voter = new User();
             voter.setFullName("Rajesh Kumar Verma");
             voter.setEmail("voter@smartvote.ai");
@@ -100,11 +112,24 @@ public class DataInitializer implements CommandLineRunner {
                     NotificationType.SUCCESS));
 
             log.info("Initialized default Indian Citizen Voter: voter@smartvote.ai / Voter@123 (EPIC: IND-DL-8941205)");
-        }
+        });
     }
 
     private void seedElections() {
-        if (electionRepository.count() == 0) {
+        List<Election> existing = electionRepository.findAll();
+        boolean hasIndian = existing.stream().anyMatch(e -> e.getTitle() != null && e.getTitle().contains("Lok Sabha"));
+
+        // If old elections exist, mark them COMPLETED so they don't appear as active ballots
+        for (Election el : existing) {
+            if (el.getTitle() != null && !el.getTitle().contains("Lok Sabha") && !el.getTitle().contains("Vidhan Sabha") && !el.getTitle().contains("Nagar Nigam")) {
+                el.setStatus(ElectionStatus.COMPLETED);
+                electionRepository.save(el);
+            }
+        }
+
+        if (!hasIndian) {
+            log.info("Seeding authentic Indian democratic elections (Lok Sabha, Vidhan Sabha, Nagar Nigam, Rajya Sabha)...");
+
             // Election 1: Active - 18th Lok Sabha General Elections
             Election election1 = new Election();
             election1.setTitle("18th Lok Sabha General Elections 2026");
