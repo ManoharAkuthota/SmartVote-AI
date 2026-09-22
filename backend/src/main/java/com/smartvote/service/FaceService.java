@@ -71,7 +71,10 @@ public class FaceService {
             double[] vecB = liveEmbedding.stream().mapToDouble(Double::doubleValue).toArray();
 
             double similarity = calculateCosineSimilarity(vecA, vecB);
-            log.info("Face similarity evaluated: {:.4f} (Threshold: {:.2f})", similarity, threshold);
+            log.info("Face biometric similarity evaluated: {}% [Score: {}] (Required Threshold: {}%)",
+                    String.format("%.2f", similarity * 100),
+                    String.format("%.4f", similarity),
+                    String.format("%.0f", threshold * 100));
             return similarity >= threshold;
         } catch (Exception e) {
             log.error("Failed to parse and compare face embeddings: {}", e.getMessage());

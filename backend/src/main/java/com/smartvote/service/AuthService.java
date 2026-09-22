@@ -40,6 +40,7 @@ public class AuthService {
     private final FaceService faceService;
     private final OtpService otpService;
     private final EmailService emailService;
+    private final SmsService smsService;
     private final CloudinaryService cloudinaryService;
     private final AuditService auditService;
     private final NotificationService notificationService;
@@ -55,6 +56,7 @@ public class AuthService {
                        FaceService faceService,
                        OtpService otpService,
                        EmailService emailService,
+                       SmsService smsService,
                        CloudinaryService cloudinaryService,
                        AuditService auditService,
                        NotificationService notificationService,
@@ -66,6 +68,7 @@ public class AuthService {
         this.faceService = faceService;
         this.otpService = otpService;
         this.emailService = emailService;
+        this.smsService = smsService;
         this.cloudinaryService = cloudinaryService;
         this.auditService = auditService;
         this.notificationService = notificationService;
@@ -191,6 +194,7 @@ public class AuthService {
         if (user.getRole() == Role.ROLE_ADMIN) {
             String otpCode = otpService.generateAndSaveOtp(cleanEmail, OtpPurpose.LOGIN);
             emailService.sendOtpEmail(cleanEmail, otpCode, otpExpirationSeconds);
+            smsService.sendOtpSms(user.getMobileNumber(), otpCode);
             String sessionToken = jwtService.generateTemporarySessionToken(cleanEmail, "OTP_VERIFY");
             LoginInitResponse resp = new LoginInitResponse("OTP_VERIFY", sessionToken, cleanEmail, user.getFullName(), hasFace, maskedMobile);
             resp.setDemoOtp(otpCode);
@@ -239,6 +243,7 @@ public class AuthService {
         // Biometric passed! Generate 6-digit OTP and send email
         String otpCode = otpService.generateAndSaveOtp(cleanEmail, OtpPurpose.LOGIN);
         emailService.sendOtpEmail(cleanEmail, otpCode, otpExpirationSeconds);
+        smsService.sendOtpSms(user.getMobileNumber(), otpCode);
 
         String sessionToken = jwtService.generateTemporarySessionToken(cleanEmail, "OTP_VERIFY");
         String maskedMobile = maskMobileNumber(user.getMobileNumber());
@@ -292,11 +297,12 @@ public class AuthService {
     @Transactional
     public String resendOtp(ResendOtpRequest req) {
         String cleanEmail = req.getEmail().trim().toLowerCase();
-        userRepository.findByEmail(cleanEmail)
+        User user = userRepository.findByEmail(cleanEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", cleanEmail));
 
         String otpCode = otpService.generateAndSaveOtp(cleanEmail, OtpPurpose.LOGIN);
         emailService.sendOtpEmail(cleanEmail, otpCode, otpExpirationSeconds);
+        smsService.sendOtpSms(user.getMobileNumber(), otpCode);
         return otpCode;
     }
 

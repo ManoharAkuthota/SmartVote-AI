@@ -48,6 +48,10 @@ app:
     cloud-name: ${CLOUDINARY_CLOUD_NAME:yx3r97ac}
     api-key: ${CLOUDINARY_API_KEY:665272951174257}
     api-secret: ${CLOUDINARY_API_SECRET:WBXFMde0defk0rcafmPXPt2lOd0}
+  twilio:
+    account-sid: ${TWILIO_ACCOUNT_SID:}
+    auth-token: ${TWILIO_AUTH_TOKEN:}
+    phone-number: ${TWILIO_PHONE_NUMBER:}
   cors:
     allowed-origins:
       - "http://localhost:5173"
