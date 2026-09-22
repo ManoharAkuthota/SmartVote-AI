@@ -70,6 +70,14 @@ public class DataInitializer implements CommandLineRunner {
             admin.setStatus(UserStatus.APPROVED);
             admin.setFailedLoginAttempts(0);
             admin.setAccountLockedUntil(null);
+            if (admin.getFaceEmbedding() == null) {
+                List<Double> adminVector = new ArrayList<>(128);
+                for (int i = 0; i < 128; i++) {
+                    adminVector.add(0.08 + (i % 5) * 0.03);
+                }
+                FaceEmbedding embedding = new FaceEmbedding(admin, faceService.serializeEmbedding(adminVector), 0.99);
+                admin.setFaceEmbedding(embedding);
+            }
             userRepository.save(admin);
             log.info("Updated Indian Election Commission Admin: admin@smartvote.ai (ECI-HQ-ADM01) / Admin@123");
         }, () -> {
@@ -84,6 +92,14 @@ public class DataInitializer implements CommandLineRunner {
             admin.setMaskedAadhaar("XXXX-XXXX-9999");
             admin.setFaceImageUrl("https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80");
             admin.setFailedLoginAttempts(0);
+
+            List<Double> adminVector = new ArrayList<>(128);
+            for (int i = 0; i < 128; i++) {
+                adminVector.add(0.08 + (i % 5) * 0.03);
+            }
+            FaceEmbedding embedding = new FaceEmbedding(admin, faceService.serializeEmbedding(adminVector), 0.99);
+            admin.setFaceEmbedding(embedding);
+
             userRepository.save(admin);
             log.info("Initialized default Indian Election Commission Admin: admin@smartvote.ai / Admin@123");
         });
