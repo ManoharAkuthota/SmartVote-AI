@@ -6,6 +6,7 @@ import { LanguageProvider } from './context/LanguageContext';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import MobileBottomNav from './components/MobileBottomNav';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import LandingPage from './pages/LandingPage';
@@ -28,7 +29,7 @@ export default function App() {
           <BrowserRouter>
             <div className="flex flex-col min-h-screen bg-[#030712] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-300">
               <Navbar />
-              <main className="flex-1">
+              <main className="flex-1 pb-20 md:pb-0">
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/" element={<LandingPage />} />
@@ -94,6 +95,7 @@ export default function App() {
                 </Routes>
               </main>
               <Footer />
+              <MobileBottomNav />
             </div>
           </BrowserRouter>
         </AuthProvider>
