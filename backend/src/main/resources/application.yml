@@ -43,7 +43,8 @@ app:
     expiration-ms: 86400000 # 24 hours
     otp-expiration-seconds: 120 # 2 minutes
   face:
-    similarity-threshold: 0.85
+    max-distance: ${FACE_MAX_DISTANCE:0.60}
+    similarity-threshold: ${FACE_SIMILARITY_THRESHOLD:0.78}
   cloudinary:
     cloud-name: ${CLOUDINARY_CLOUD_NAME:yx3r97ac}
     api-key: ${CLOUDINARY_API_KEY:665272951174257}

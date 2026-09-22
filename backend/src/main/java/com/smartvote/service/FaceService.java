@@ -20,15 +20,15 @@ public class FaceService {
      * - Same person: Euclidean distance is typically 0.15 - 0.45 (strictly <= 0.55)
      * - Different person: Euclidean distance is typically 0.65 - 1.25 (strictly > 0.55)
      */
-    @Value("${app.face.max-distance:0.55}")
+    @Value("${app.face.max-distance:0.60}")
     private double maxDistanceThreshold;
 
     /**
      * Raw Cosine Similarity threshold (uncompressed):
-     * - Same person: Raw cosine is typically 0.90 - 0.99 (strictly >= 0.85)
-     * - Different person: Raw cosine is typically 0.20 - 0.75 (strictly < 0.85)
+     * - Same person: Raw cosine is typically 0.82 - 0.99 (strictly >= 0.78)
+     * - Different person: Raw cosine is typically 0.20 - 0.72 (strictly < 0.78)
      */
-    @Value("${app.face.similarity-threshold:0.85}")
+    @Value("${app.face.similarity-threshold:0.78}")
     private double minCosineThreshold;
 
     /**

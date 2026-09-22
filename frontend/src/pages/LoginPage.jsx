@@ -246,6 +246,9 @@ export default function LoginPage() {
               mode="login"
               requireLiveness={true}
               onSuccess={handleFaceSuccess}
+              isVerifying={isSubmitting}
+              externalError={errorMsg}
+              onReset={() => setErrorMsg(null)}
             />
 
             <button

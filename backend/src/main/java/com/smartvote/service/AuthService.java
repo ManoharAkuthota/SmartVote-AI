@@ -235,9 +235,10 @@ public class AuthService {
                 throw new AccountLockedException("Account locked due to multiple failed biometric attempts. Please wait 15 minutes.");
             }
             userRepository.save(user);
+            int remaining = 5 - attempts;
             auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
-                    req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Face embedding similarity < 0.85", "Unknown");
-            throw new FaceMatchException("Facial recognition mismatch. Biometric similarity is below the required 85% threshold.");
+                    req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Face embedding similarity below threshold", "Unknown");
+            throw new FaceMatchException("Facial recognition mismatch. Your live camera face does not match the enrolled biometric profile (" + remaining + " attempts remaining). Please align face clearly and retake.");
         }
 
         // Biometric passed! Generate 6-digit OTP and send email
