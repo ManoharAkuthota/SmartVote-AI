@@ -15,16 +15,16 @@ export default function MobileBottomNav() {
   const dashboardLabel = !isAuthenticated ? 'Sign In' : isAdmin ? 'Admin' : 'Voter Hub';
 
   return (
-    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/90 backdrop-blur-2xl border-t border-cyan-500/20 px-3 py-2 pb-safe shadow-[0_-10px_25px_rgba(0,0,0,0.5)]">
+    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-3 py-2 pb-safe shadow-lg">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {/* Home */}
         <Link
           to="/"
           className={`flex flex-col items-center py-1 px-3 rounded-xl transition ${
-            isActive('/') ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            isActive('/') ? 'text-blue-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <div className={`p-1 rounded-lg ${isActive('/') ? 'bg-cyan-500/15 shadow-neon-cyan' : ''}`}>
+          <div className={`p-1 rounded-lg ${isActive('/') ? 'bg-blue-600/15' : ''}`}>
             <Home className="w-5 h-5" />
           </div>
           <span className="text-[10px] mt-0.5">{t('nav_home')}</span>
@@ -34,10 +34,10 @@ export default function MobileBottomNav() {
         <Link
           to="/elections"
           className={`flex flex-col items-center py-1 px-3 rounded-xl transition ${
-            isActive('/elections') ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            isActive('/elections') ? 'text-blue-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <div className={`p-1 rounded-lg ${isActive('/elections') ? 'bg-cyan-500/15 shadow-neon-cyan' : ''}`}>
+          <div className={`p-1 rounded-lg ${isActive('/elections') ? 'bg-blue-600/15' : ''}`}>
             <Vote className="w-5 h-5" />
           </div>
           <span className="text-[10px] mt-0.5">{t('nav_elections')}</span>
@@ -47,10 +47,10 @@ export default function MobileBottomNav() {
         <Link
           to="/verify"
           className={`flex flex-col items-center py-1 px-3 rounded-xl transition ${
-            isActive('/verify') ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            isActive('/verify') ? 'text-blue-400 font-semibold' : 'text-slate-400 hover:text-slate-200'
           }`}
         >
-          <div className={`p-1 rounded-lg ${isActive('/verify') ? 'bg-cyan-500/15 shadow-neon-cyan' : ''}`}>
+          <div className={`p-1 rounded-lg ${isActive('/verify') ? 'bg-blue-600/15' : ''}`}>
             <ShieldCheck className="w-5 h-5" />
           </div>
           <span className="text-[10px] mt-0.5">Verify</span>
@@ -61,13 +61,13 @@ export default function MobileBottomNav() {
           to={dashboardPath}
           className={`flex flex-col items-center py-1 px-3 rounded-xl transition ${
             location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || isActive('/login')
-              ? isAdmin ? 'text-purple-400 font-bold' : 'text-cyan-400 font-bold'
+              ? isAdmin ? 'text-purple-400 font-semibold' : 'text-blue-400 font-semibold'
               : 'text-slate-400 hover:text-slate-200'
           }`}
         >
           <div className={`p-1 rounded-lg ${
             location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || isActive('/login')
-              ? isAdmin ? 'bg-purple-500/15 shadow-neon-purple' : 'bg-cyan-500/15 shadow-neon-cyan'
+              ? isAdmin ? 'bg-purple-600/15' : 'bg-blue-600/15'
               : ''
           }`}>
             {isAdmin ? <Shield className="w-5 h-5" /> : isAuthenticated ? <LayoutDashboard className="w-5 h-5" /> : <User className="w-5 h-5" />}

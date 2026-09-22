@@ -67,14 +67,21 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
           <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
-            <div className="relative p-2 rounded-xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 border border-cyan-400/40 group-hover:border-cyan-400 transition-all shadow-neon-cyan shrink-0">
-              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+            <div className="relative p-2 rounded-xl bg-blue-600/15 border border-blue-500/30 group-hover:border-blue-400 transition-all shadow-sm shrink-0">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 group-hover:scale-105 transition-transform" />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg sm:text-xl font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
-                SMARTVOTE<span className="text-[10px] sm:text-xs ml-1 px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">AI</span>
+              <div className="flex items-center space-x-1.5">
+                <span className="text-lg sm:text-xl font-black tracking-tight text-white">
+                  SMARTVOTE
+                </span>
+                <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-blue-600/20 text-blue-400 border border-blue-500/30 font-bold uppercase tracking-wider">
+                  Official
+                </span>
+              </div>
+              <span className="text-[8px] sm:text-[9px] text-slate-400 tracking-wider uppercase font-medium">
+                National Digital Voting System
               </span>
-              <span className="text-[9px] sm:text-[10px] text-slate-400 tracking-widest uppercase">Biometric Ledger</span>
             </div>
           </Link>
 
@@ -83,7 +90,7 @@ export default function Navbar() {
             <Link
               to="/"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               {t('nav_home')}
@@ -91,7 +98,7 @@ export default function Navbar() {
             <Link
               to="/elections"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/elections') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/elections') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               {t('nav_elections')}
@@ -99,7 +106,7 @@ export default function Navbar() {
             <Link
               to="/verify"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/verify') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/verify') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
               }`}
             >
               {t('nav_verify')}
@@ -109,7 +116,7 @@ export default function Navbar() {
               <Link
                 to="/dashboard"
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/dashboard') ? 'text-cyan-400 bg-cyan-500/10 border border-cyan-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  isActive('/dashboard') ? 'text-blue-400 bg-blue-500/10 border border-blue-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                 }`}
               >
                 {t('nav_dashboard')}
@@ -250,13 +257,13 @@ export default function Navbar() {
               <div className="hidden sm:flex items-center space-x-2">
                 <Link
                   to="/login"
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-700 transition"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-200 hover:text-white bg-slate-800/80 hover:bg-slate-700 border border-slate-700 transition"
                 >
                   {t('nav_login')}
                 </Link>
                 <Link
                   to="/register"
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-purple-400 hover:opacity-90 shadow-neon-cyan transition"
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition"
                 >
                   {t('nav_register')}
                 </Link>
@@ -313,7 +320,7 @@ export default function Navbar() {
               <Link
                 to="/register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-xl text-center text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-purple-400 shadow-neon-cyan transition"
+                className="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition"
               >
                 {t('nav_register')}
               </Link>

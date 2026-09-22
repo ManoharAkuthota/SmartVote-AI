@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, ShieldCheck, ArrowRight, RefreshCw, AlertCircle, Sparkles, KeyRound } from 'lucide-react';
+import { Mail, Lock, ShieldCheck, ArrowRight, RefreshCw, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
 import FaceScanner from '../components/FaceScanner';
 import OtpModal from '../components/OtpModal';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +16,7 @@ export default function LoginPage() {
     email: location.state?.email || '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const [sessionToken, setSessionToken] = useState(null);
   const [maskedMobile, setMaskedMobile] = useState('');
@@ -58,14 +59,13 @@ export default function LoginPage() {
         if (data.nextStep === 'FACE_VERIFY') {
           setStep(2);
         } else if (data.nextStep === 'OTP_VERIFY') {
-          // Admin bypasses face or user without face
           setStep(3);
         }
       } else {
-        setErrorMsg(res.data?.message || 'Login failed.');
+        setErrorMsg(res.data?.message || 'Authentication failed.');
       }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Invalid credentials or account locked.');
+      setErrorMsg(err.response?.data?.message || 'Invalid email or password. Please verify your credentials.');
     } finally {
       setIsSubmitting(false);
     }
@@ -89,12 +89,12 @@ export default function LoginPage() {
 
       if (res.data?.success) {
         setSessionToken(res.data.data.sessionToken);
-        setStep(3); // Advance to OTP verification
+        setStep(3);
       } else {
-        setErrorMsg(res.data?.message || 'Facial verification failed.');
+        setErrorMsg(res.data?.message || 'Biometric identity match could not be confirmed.');
       }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Facial biometrics does not meet 85% confidence.');
+      setErrorMsg(err.response?.data?.message || 'Biometric match score insufficient. Please retry.');
     } finally {
       setIsSubmitting(false);
     }
@@ -112,11 +112,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md p-6 sm:p-10 rounded-3xl bg-slate-900/90 border border-cyan-500/30 shadow-2xl backdrop-blur-2xl">
+      <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-slate-900/90 border border-slate-700 shadow-xl backdrop-blur-xl">
         {/* Error Alert */}
         {errorMsg && (
-          <div className="mb-6 p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 flex items-center space-x-2 text-rose-300 text-xs">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="mb-6 p-3 rounded-xl bg-rose-950/70 border border-rose-500/50 flex items-center space-x-2 text-rose-200 text-xs">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -125,26 +125,26 @@ export default function LoginPage() {
         {step === 1 && (
           <form onSubmit={handleLoginInit} className="space-y-4">
             <div className="text-center mb-6">
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-cyan-500/10 border border-cyan-400/40 flex items-center justify-center mb-3 shadow-neon-cyan">
-                <ShieldCheck className="w-7 h-7 text-cyan-400" />
+              <div className="w-12 h-12 mx-auto rounded-xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-3">
+                <Shield className="w-6 h-6 text-blue-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white">Biometric Sign-In</h2>
+              <h2 className="text-xl font-bold text-white">Official Voter Portal</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Enter your credentials to initiate facial liveness verification.
+                Enter your credentials to begin secure multi-factor authentication.
               </p>
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Email Address</label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="voter@smartvote.ai"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
                   required
                 />
               </div>
@@ -153,38 +153,47 @@ export default function LoginPage() {
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-cyan-400 focus:outline-none transition"
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 p-1 text-slate-400 hover:text-slate-200 transition"
+                  title={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
             {/* Demo Shortcuts */}
             <div className="pt-2">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1.5">
-                Quick Demo Credentials:
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider block mb-1.5 font-medium">
+                Demo Accounts:
               </span>
               <div className="flex space-x-2">
                 <button
                   type="button"
                   onClick={() => setDemoCredentials('voter')}
-                  className="flex-1 py-1.5 px-2 bg-slate-950 border border-slate-800 hover:border-cyan-500/40 rounded-lg text-[11px] text-cyan-300 font-mono transition"
+                  className="flex-1 py-1.5 px-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] text-slate-200 font-medium transition flex items-center justify-center gap-1"
                 >
-                  ⚡ Fill Voter
+                  <span>👤 Voter Account</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setDemoCredentials('admin')}
-                  className="flex-1 py-1.5 px-2 bg-slate-950 border border-slate-800 hover:border-purple-500/40 rounded-lg text-[11px] text-purple-300 font-mono transition"
+                  className="flex-1 py-1.5 px-2 bg-slate-800/80 hover:bg-slate-800 border border-slate-700 rounded-lg text-[11px] text-slate-200 font-medium transition flex items-center justify-center gap-1"
                 >
-                  🛡️ Fill Admin
+                  <span>🛡️ Admin Account</span>
                 </button>
               </div>
             </div>
@@ -192,25 +201,25 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-purple-500 to-emerald-400 text-slate-950 font-bold text-xs shadow-neon-cyan hover:opacity-90 disabled:opacity-50 flex items-center justify-center space-x-2 transition"
+              className="w-full mt-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs shadow transition flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Validating Credentials...</span>
+                  <span>Verifying Credentials...</span>
                 </>
               ) : (
                 <>
-                  <span>Initialize Biometrics</span>
+                  <span>Continue to Biometric Verification</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
 
             <div className="text-center mt-4 text-xs text-slate-400">
-              Need a digital identity?{' '}
-              <Link to="/register" className="text-cyan-400 hover:text-cyan-300 font-semibold">
-                Enroll Now
+              Need to register as a voter?{' '}
+              <Link to="/register" className="text-blue-400 hover:text-blue-300 font-semibold underline underline-offset-2">
+                Official Voter Registration
               </Link>
             </div>
           </form>
@@ -219,10 +228,10 @@ export default function LoginPage() {
         {/* STEP 2: Facial Biometric Verification */}
         {step === 2 && (
           <div>
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white">Live Face Verification</h2>
+            <div className="text-center mb-5">
+              <h2 className="text-xl font-bold text-white">Biometric Identity Verification</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Authenticating against your stored 128-D embedding (85% similarity requirement).
+                Position your face within the frame and click <strong>Take Photo Now</strong> to verify.
               </p>
             </div>
 
@@ -235,9 +244,9 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="mt-4 text-xs text-slate-400 hover:text-white block text-center mx-auto"
+              className="mt-4 text-xs text-slate-400 hover:text-white block text-center mx-auto transition"
             >
-              Cancel & Return
+              &larr; Return to Email & Password
             </button>
           </div>
         )}
