@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Camera, RefreshCw, CheckCircle2, AlertCircle, Eye, CornerDownRight, SunMedium, ShieldCheck, VideoOff, Sparkles, Check } from 'lucide-react';
-import { loadFaceApiModels, detectFaceWithBiometrics, checkLightingQuality, generateMockEmbedding } from '../services/faceApiLoader';
+import { loadFaceApiModels, detectFaceWithLiveness, checkLightingQuality, generateMockEmbedding } from '../services/faceApiLoader';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function FaceScanner({
@@ -102,7 +102,7 @@ export default function FaceScanner({
         const brightness = checkLightingQuality(videoRef.current);
         setLightingLevel(Math.round(brightness));
 
-        const res = await detectFaceWithBiometrics(videoRef.current);
+        const res = await detectFaceWithLiveness(videoRef.current);
         if (!res) return;
 
         if (res.status === 'MULTIPLE_FACES') {
@@ -121,7 +121,7 @@ export default function FaceScanner({
         }
 
         if (res.status === 'SUCCESS' && res.descriptor) {
-          // Lock in real biometric descriptor
+          // Lock in real facial security descriptor
           latestDescriptorRef.current = res.descriptor;
           latestScoreRef.current = res.confidence || 0.96;
           setFaceDetected(true);
@@ -152,7 +152,7 @@ export default function FaceScanner({
           }
         }
       } catch (err) {
-        console.error("Biometrics loop error:", err);
+        console.error("Facial security detection error:", err);
       }
     };
 
@@ -160,7 +160,7 @@ export default function FaceScanner({
     return () => clearInterval(intervalId);
   }, [streamActive, completed, blinkPassed, headTurnPassed, simulatedMode]);
 
-  // QUICK PHOTO CAPTURE (Strict Real Biometric Snapshot)
+  // QUICK PHOTO CAPTURE (Strict Real Face Snapshot)
   const handleQuickPhotoCapture = async () => {
     if (isProcessing || completed || isVerifying) return;
 
@@ -171,14 +171,14 @@ export default function FaceScanner({
     if (!descriptor && videoRef.current && videoRef.current.readyState >= 2) {
       setIsProcessing(true);
       try {
-        const detection = await detectFaceWithBiometrics(videoRef.current);
+        const detection = await detectFaceWithLiveness(videoRef.current);
         if (detection && detection.descriptor) {
           descriptor = detection.descriptor;
           score = detection.confidence || 0.96;
           latestDescriptorRef.current = descriptor;
         }
       } catch (e) {
-        console.warn("Direct biometric scan failed:", e);
+        console.warn("Direct facial scan failed:", e);
       }
     }
 
@@ -214,7 +214,7 @@ export default function FaceScanner({
     setHeadTurnPassed(true);
     setCompleted(true);
 
-    if (voiceEnabled) speak("Photo captured. Verifying biometric identity.");
+    if (voiceEnabled) speak("Photo captured. Verifying facial security identity.");
 
     setTimeout(() => {
       onSuccess({
@@ -229,7 +229,7 @@ export default function FaceScanner({
     }, 350);
   };
 
-  const triggerSimulatedBiometrics = () => {
+  const triggerSimulatedFace = () => {
     setIsProcessing(true);
     setFaceDetected(true);
     setBlinkPassed(true);
@@ -243,7 +243,7 @@ export default function FaceScanner({
     setCompleted(true);
 
     setTimeout(() => {
-      if (voiceEnabled) speak("Demonstration biometric profile accepted.");
+      if (voiceEnabled) speak("Demonstration facial security profile accepted.");
       onSuccess({
         faceImageUrl: mockImage,
         embedding: mockDescriptor,
@@ -272,7 +272,7 @@ export default function FaceScanner({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-blue-400 p-6 text-center">
             <Sparkles className="w-12 h-12 text-blue-400 mb-2" />
-            <h4 className="text-sm font-bold text-white">Demonstration Biometric Mode Active</h4>
+            <h4 className="text-sm font-bold text-white">Demonstration Face Security Mode Active</h4>
             <p className="text-xs text-slate-400 mt-1 max-w-xs">
               Hardware webcam bypassed. Click below to proceed with demo profile.
             </p>
@@ -316,7 +316,7 @@ export default function FaceScanner({
         <div className="absolute top-3 inset-x-3 flex items-center justify-between z-30 pointer-events-none">
           <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-900/85 border border-slate-700 text-xs font-medium text-slate-200 backdrop-blur-md">
             <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-            <span>Biometric Identification</span>
+            <span>Facial Security Verification</span>
           </div>
 
           <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900/85 border border-slate-700 text-xs text-slate-300 backdrop-blur-md">
@@ -356,7 +356,7 @@ export default function FaceScanner({
             <div className="w-12 h-12 rounded-full bg-blue-500/20 border-2 border-blue-500 flex items-center justify-center mb-3">
               <RefreshCw className="w-6 h-6 text-blue-400 animate-spin" />
             </div>
-            <h3 className="text-sm font-bold text-white">Verifying Biometric Profile</h3>
+            <h3 className="text-sm font-bold text-white">Verifying Facial Security Profile</h3>
             <p className="text-xs text-slate-300 mt-1">Authenticating against cryptographic ledger record...</p>
           </div>
         )}
@@ -406,7 +406,7 @@ export default function FaceScanner({
         ) : (
           <button
             type="button"
-            onClick={triggerSimulatedBiometrics}
+            onClick={triggerSimulatedFace}
             disabled={isProcessing}
             className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow flex items-center justify-center space-x-2 transition"
           >
@@ -443,7 +443,7 @@ export default function FaceScanner({
               : 'bg-slate-900 border-slate-800 text-slate-400'
           }`}>
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
-              {completed && !externalError && <Check className="w-3 h-3" />} Biometrics
+              {completed && !externalError && <Check className="w-3 h-3" />} Face Security
             </div>
             <div className="text-[10px] opacity-80">
               {externalError ? 'Retry Needed' : completed ? 'Captured' : 'Ready'}

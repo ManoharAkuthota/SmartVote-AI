@@ -19,7 +19,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="flex items-center justify-center space-x-2 text-slate-300">
             <Shield className="w-4 h-4 text-amber-500" />
-            <span className="font-semibold tracking-wide">ECI Standard Biometrics</span>
+            <span className="font-semibold tracking-wide">ECI Facial Security Standards</span>
           </div>
           <div className="flex items-center justify-center space-x-2 text-slate-300">
             <Lock className="w-4 h-4 text-amber-500" />

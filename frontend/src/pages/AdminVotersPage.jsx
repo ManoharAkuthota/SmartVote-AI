@@ -105,7 +105,7 @@ export default function AdminVotersPage() {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-800 text-slate-400 font-mono">
-                <th className="pb-3 font-semibold">Biometric Portrait</th>
+                <th className="pb-3 font-semibold">Enrolled Face Portrait</th>
                 <th className="pb-3 font-semibold">Full Citizen Name & Email</th>
                 <th className="pb-3 font-semibold">EPIC Voter ID</th>
                 <th className="pb-3 font-semibold">Aadhaar Ref</th>
@@ -128,7 +128,7 @@ export default function AdminVotersPage() {
                       <div
                         onClick={() => setSelectedFaceUrl(v.faceImageUrl)}
                         className="w-10 h-10 rounded-xl overflow-hidden border border-amber-500/40 cursor-pointer hover:scale-105 transition shadow-sm bg-slate-950"
-                        title="Click to view biometric facial record"
+                        title="Click to view facial security record"
                       >
                         <img
                           src={v.faceImageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80'}
@@ -177,7 +177,7 @@ export default function AdminVotersPage() {
 
                       {v.status !== 'REJECTED' && (
                         <button
-                          onClick={() => updateStatus(v.id, 'REJECTED', 'Biometric mismatch')}
+                          onClick={() => updateStatus(v.id, 'REJECTED', 'Facial security mismatch')}
                           className="px-2.5 py-1 rounded-lg bg-rose-950/40 border border-rose-500/30 text-rose-300 hover:bg-rose-900/50 text-[11px] font-semibold cursor-pointer"
                           title="Reject Registration"
                         >
@@ -211,7 +211,7 @@ export default function AdminVotersPage() {
         </div>
       )}
 
-      {/* Biometric Face Modal Popup */}
+      {/* Facial Security Face Modal Popup */}
       {selectedFaceUrl && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl">
           <div className="relative p-4 rounded-3xl bg-slate-900 border border-amber-500/40 shadow-2xl max-w-sm w-full text-center">
@@ -221,12 +221,12 @@ export default function AdminVotersPage() {
             >
               <X className="w-5 h-5" />
             </button>
-            <h4 className="text-sm font-bold text-white mb-3">Enrolled Biometric Portrait</h4>
+            <h4 className="text-sm font-bold text-white mb-3">Enrolled Face Portrait</h4>
             <div className="w-48 h-48 mx-auto rounded-2xl overflow-hidden border-2 border-amber-400 shadow-md">
               <img src={selectedFaceUrl} alt="Face Profile" className="w-full h-full object-cover" />
             </div>
             <p className="text-[11px] text-slate-400 mt-3">
-              Official biometric embedding captured and verified during Form 6 registration.
+              Official facial security portrait captured and verified during Form 6 registration.
             </p>
           </div>
         </div>

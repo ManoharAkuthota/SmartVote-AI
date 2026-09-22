@@ -29,7 +29,7 @@ export default function App() {
           <BrowserRouter>
             <div className="flex flex-col min-h-screen app-container transition-colors duration-200 selection:bg-cyan-500/30 selection:text-cyan-700 dark:selection:text-cyan-300">
               <Navbar />
-              <main className="flex-1 pb-20 md:pb-0">
+              <main className="flex-1 pb-24 md:pb-8">
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/" element={<LandingPage />} />

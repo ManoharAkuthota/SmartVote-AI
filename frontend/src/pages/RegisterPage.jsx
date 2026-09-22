@@ -18,7 +18,7 @@ export default function RegisterPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
 
-  const [biometrics, setBiometrics] = useState({
+  const [faceData, setFaceData] = useState({
     faceImageUrl: '',
     embedding: null,
     qualityScore: 0.95,
@@ -41,7 +41,7 @@ export default function RegisterPage() {
     return null;
   };
 
-  const handleNextToBiometrics = (e) => {
+  const handleNextToPhoto = (e) => {
     e.preventDefault();
     const err = validateStep1();
     if (err) {
@@ -52,11 +52,11 @@ export default function RegisterPage() {
     setStep(2);
   };
 
-  const handleBiometricSuccess = (bioData) => {
-    setBiometrics({
-      faceImageUrl: bioData.faceImageUrl,
-      embedding: bioData.embedding,
-      qualityScore: bioData.qualityScore || 0.96,
+  const handlePhotoSuccess = (capturedData) => {
+    setFaceData({
+      faceImageUrl: capturedData.faceImageUrl,
+      embedding: capturedData.embedding,
+      qualityScore: capturedData.qualityScore || 0.96,
     });
     setStep(3);
   };
@@ -73,8 +73,8 @@ export default function RegisterPage() {
         password: formData.password,
         voterIdNumber: formData.voterIdNumber,
         maskedAadhaar: formData.maskedAadhaar,
-        faceImageUrl: biometrics.faceImageUrl,
-        faceEmbedding: biometrics.embedding,
+        faceImageUrl: faceData.faceImageUrl,
+        faceEmbedding: faceData.embedding,
         deviceFingerprint: navigator.userAgent,
       };
 
@@ -156,7 +156,7 @@ export default function RegisterPage() {
 
         {/* STEP 1: Personal & Identity Info (Form 6) */}
         {step === 1 && (
-          <form onSubmit={handleNextToBiometrics} className="space-y-4">
+          <form onSubmit={handleNextToPhoto} className="space-y-4">
             <div className="text-center mb-6">
               <div className="w-12 h-12 mx-auto rounded-xl bg-amber-600/10 border border-amber-500/30 flex items-center justify-center mb-3">
                 <Shield className="w-6 h-6 text-amber-500" />
@@ -289,7 +289,7 @@ export default function RegisterPage() {
           </form>
         )}
 
-        {/* STEP 2: Biometric Webcam Enrollment */}
+        {/* STEP 2: Facial Security Enrollment */}
         {step === 2 && (
           <div>
             <div className="text-center mb-5">
@@ -302,7 +302,7 @@ export default function RegisterPage() {
             <FaceScanner
               mode="register"
               requireLiveness={true}
-              onSuccess={handleBiometricSuccess}
+              onSuccess={handlePhotoSuccess}
             />
 
             <button
@@ -321,7 +321,7 @@ export default function RegisterPage() {
           <div className="space-y-5 text-center">
             <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden border-2 border-amber-500 shadow-md">
               <img
-                src={biometrics.faceImageUrl}
+                src={faceData.faceImageUrl}
                 alt="Captured Face"
                 className="w-full h-full object-cover"
               />
@@ -342,7 +342,7 @@ export default function RegisterPage() {
                 <span className="text-slate-200 font-mono">{formData.maskedAadhaar}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Biometric Verification:</span>
+                <span className="text-slate-400">Facial Verification:</span>
                 <span className="text-emerald-400 font-semibold flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Verified & Enrolled
                 </span>

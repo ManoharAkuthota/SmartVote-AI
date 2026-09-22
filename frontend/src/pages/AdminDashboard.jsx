@@ -81,7 +81,7 @@ export default function AdminDashboard() {
         <StatCard
           title="Total Registered Citizens"
           value={analytics?.totalRegisteredVoters || 0}
-          subtitle={`${analytics?.totalApprovedVoters || 0} Biometrically Verified`}
+          subtitle={`${analytics?.totalApprovedVoters || 0} Facial Security Verified`}
           icon={Users}
           color="amber"
         />
@@ -100,9 +100,9 @@ export default function AdminDashboard() {
           color="purple"
         />
         <StatCard
-          title="Biometric Anomaly Alerts"
+          title="Facial Security Anomaly Alerts"
           value={analytics?.suspiciousLoginsCount || 0}
-          subtitle="Spoof / Failed Biometrics"
+          subtitle="Spoof / Failed Face Verifications"
           icon={ShieldAlert}
           color="pink"
         />

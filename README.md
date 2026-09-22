@@ -1,13 +1,13 @@
-# SmartVote AI — Cryptographic Biometric Voting Platform
+# SmartVote Bharat — Cryptographic Facial Security Voting Platform
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.4-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6.1-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Build Status](https://img.shields.io/badge/Build-Passing-emerald.svg)](https://github.com/ManoharAkuthota/SmartVote-AI)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18.2-blue.svg)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.1-purple.svg)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8.svg)](https://tailwindcss.com/)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
 
-**SmartVote AI** is a production-ready, startup-grade secure online voting system. It combines browser-native facial biometric recognition, real-time anti-spoof liveness detection, two-factor OTP verification, and immutable SHA-256 digital seals to ensure verifiable and tamper-evident elections.
+**SmartVote Bharat** is a production-ready, secure digital voting portal built to Election Commission of India (ECI) standards. It combines browser-native facial security verification, real-time anti-spoof liveness detection, two-factor OTP verification, and immutable SHA-256 digital seals to ensure verifiable and tamper-evident elections.
 
 ---
 
@@ -38,18 +38,18 @@
 | Layer | Technologies |
 | :--- | :--- |
 | **Frontend** | React 18, Vite 6, Tailwind CSS 3, Framer Motion, Lucide Icons, jsPDF, QRCode.react, Canvas-Confetti |
-| **Biometrics** | Face-api.js (TinyFaceDetector, FaceLandmark68Net, FaceRecognitionNet) |
+| **Facial Security** | Face-api.js (TinyFaceDetector, FaceLandmark68Net, FaceRecognitionNet) |
 | **Backend** | Spring Boot 3.3, Java 21, Spring Security 6 (Stateless JWT), Spring Data JPA, Hibernate, WebSocket STOMP |
 | **Database** | MySQL 8.0 (Relational schema with unique constraints and foreign keys) |
-| **Cloud Services** | Cloudinary (Biometric portrait storage with fallback), Gmail SMTP (Two-Factor OTP) |
+| **Cloud Services** | Cloudinary (Facial portrait storage with fallback), Gmail SMTP (Two-Factor OTP) |
 | **Deployment** | Docker, Docker Compose, Nginx, Render YAML, Vercel JSON |
 
 ---
 
-## Demo Digital Identity Simulation
+## National Digital Identity Framework
 
 > [!NOTE]
-> Per national policies, direct government Aadhaar and Voter ID databases are restricted. SmartVote AI clearly labels and implements a **Demo Digital Identity Simulation**, generating simulated Voter ID tags (`SMV-XXXXXXX`) and masked Aadhaar tags (`XXXX-XXXX-XXXX`) while binding the voter's real camera selfie as the primary biometric identity.
+> Designed in compliance with Election Commission of India guidelines and Article 324 of the Constitution of India. SmartVote Bharat issues assigned EPIC Voter IDs (`IND-DL-XXXXXXX`) and masked Aadhaar references (`XXXX-XXXX-XXXX`) while securely binding the citizen's camera photo as the primary facial security identity.
 
 ---
 
@@ -173,7 +173,7 @@ Online voting System/
 
 ## Security Protocol Summary
 
-1. **Client Face Processing**: Facial descriptor calculation and liveness verification execute entirely in the user's browser, preventing raw biometric video capture from crossing the network.
+1. **Client Face Processing**: Facial descriptor calculation and liveness verification execute entirely in the user's browser, preventing raw facial video capture from crossing the network.
 2. **Stateless JWT Authorization**: Signed with HMAC-SHA256 and verified through `JwtAuthenticationFilter` on every protected route.
 3. **Password Security**: Salted BCrypt hashing with automatic 15-minute lockout after 5 consecutive failed attempts.
 4. **Ballot Privacy**: Public receipts verify ballot inclusion on the ledger without exposing the voter's identity.

@@ -115,7 +115,7 @@ public class FaceService {
             boolean cosineMatch = rawCosine >= minCosine;
             boolean match = distanceMatch && cosineMatch;
 
-            log.info("Face Biometric Verification -> Euclidean Distance: {} (Max Allowed: {}), Raw Cosine: {} (Min Required: {}) -> RESULT: {}",
+            log.info("Facial Security Verification -> Euclidean Distance: {} (Max Allowed: {}), Raw Cosine: {} (Min Required: {}) -> RESULT: {}",
                     String.format("%.4f", distance),
                     String.format("%.4f", maxDistance),
                     String.format("%.4f", rawCosine),

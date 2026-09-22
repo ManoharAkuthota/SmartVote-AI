@@ -21,7 +21,7 @@ export default function MobileBottomNav() {
         <Link
           to="/"
           className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition ${
-            isActive('/') ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            isActive('/') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <div className={`p-1 rounded-lg ${isActive('/') ? 'bg-amber-500/15' : ''}`}>
@@ -34,7 +34,7 @@ export default function MobileBottomNav() {
         <Link
           to="/elections"
           className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition ${
-            isActive('/elections') ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            isActive('/elections') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <div className={`p-1 rounded-lg ${isActive('/elections') ? 'bg-amber-500/15' : ''}`}>
@@ -47,7 +47,7 @@ export default function MobileBottomNav() {
         <Link
           to="/verify"
           className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition ${
-            isActive('/verify') ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+            isActive('/verify') ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <div className={`p-1 rounded-lg ${isActive('/verify') ? 'bg-amber-500/15' : ''}`}>
@@ -61,8 +61,8 @@ export default function MobileBottomNav() {
           to={dashboardPath}
           className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition ${
             location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || isActive('/login')
-              ? isAdmin ? 'text-purple-400 font-bold' : 'text-emerald-400 font-bold'
-              : 'text-slate-400 hover:text-slate-200'
+              ? isAdmin ? 'text-purple-600 dark:text-purple-400 font-bold' : 'text-emerald-600 dark:text-emerald-400 font-bold'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <div className={`p-1 rounded-lg ${

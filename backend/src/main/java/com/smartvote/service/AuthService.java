@@ -125,14 +125,14 @@ public class AuthService {
         // Log registration audit
         auditService.logAction(cleanEmail, Role.ROLE_VOTER.name(), "USER_REGISTER",
                 "User", String.valueOf(savedUser.getId()),
-                "Enrolled demo digital identity with biometric face descriptor", ipAddress);
+                "Enrolled digital citizen identity with facial security descriptor", ipAddress);
 
         // Send registration success email
         emailService.sendRegistrationSuccessEmail(cleanEmail, savedUser.getFullName(), voterId);
 
         // Create welcome notification
         notificationService.createNotification(savedUser, "Identity Enrolled Successfully",
-                "Welcome to SmartVote AI. Your demo identity (" + voterId + ") and facial biometric profile are now verified.",
+                "Welcome to SmartVote Bharat. Your voter identity (" + voterId + ") and facial security profile are now verified.",
                 NotificationType.SUCCESS);
 
         log.info("Registered new voter: [{}] with Voter ID: {}", cleanEmail, voterId);
@@ -220,7 +220,7 @@ public class AuthService {
         }
 
         FaceEmbedding storedEmbedding = faceEmbeddingRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new FaceMatchException("No enrolled face biometric found for this account. Please re-register."));
+                .orElseThrow(() -> new FaceMatchException("No enrolled facial security profile found for this account. Please re-register."));
 
         boolean match = faceService.isMatch(storedEmbedding.getEmbeddingJson(), req.getLiveEmbedding());
         if (!match) {
@@ -232,16 +232,16 @@ public class AuthService {
                 userRepository.save(user);
                 auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
                         req.getDeviceFingerprint(), LoginStatus.LOCKED, "Account locked after 5 failed face matches", "Unknown");
-                throw new AccountLockedException("Account locked due to multiple failed biometric attempts. Please wait 15 minutes.");
+                throw new AccountLockedException("Account locked due to multiple failed facial verification attempts. Please wait 15 minutes.");
             }
             userRepository.save(user);
             int remaining = 5 - attempts;
             auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
                     req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Face embedding similarity below threshold", "Unknown");
-            throw new FaceMatchException("Facial recognition mismatch. Your live camera face does not match the enrolled biometric profile (" + remaining + " attempts remaining). Please align face clearly and retake.");
+            throw new FaceMatchException("Facial recognition mismatch. Your live camera face does not match the enrolled facial security profile (" + remaining + " attempts remaining). Please align face clearly and retake.");
         }
 
-        // Biometric passed! Generate 6-digit OTP and send email
+        // Facial security passed! Generate 6-digit OTP and send email
         String otpCode = otpService.generateAndSaveOtp(cleanEmail, OtpPurpose.LOGIN);
         emailService.sendOtpEmail(cleanEmail, otpCode, otpExpirationSeconds);
         smsService.sendOtpSms(user.getMobileNumber(), otpCode);
@@ -249,8 +249,8 @@ public class AuthService {
         String sessionToken = jwtService.generateTemporarySessionToken(cleanEmail, "OTP_VERIFY");
         String maskedMobile = maskMobileNumber(user.getMobileNumber());
 
-        auditService.logAction(cleanEmail, user.getRole().name(), "BIOMETRIC_VERIFIED",
-                "User", String.valueOf(user.getId()), "Live facial biometric and liveness verified", ipAddress);
+        auditService.logAction(cleanEmail, user.getRole().name(), "FACIAL_SECURITY_VERIFIED",
+                "User", String.valueOf(user.getId()), "Live facial security and liveness verified", ipAddress);
 
         LoginInitResponse resp = new LoginInitResponse("OTP_VERIFY", sessionToken, cleanEmail, user.getFullName(), true, maskedMobile);
         resp.setDemoOtp(otpCode);
@@ -288,9 +288,9 @@ public class AuthService {
         String jwt = jwtService.generateToken(userDetails, claims);
 
         auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
-                req.getDeviceFingerprint(), LoginStatus.SUCCESS, "Full 2FA Biometric Authentication Successful", "Local");
+                req.getDeviceFingerprint(), LoginStatus.SUCCESS, "Full 2FA Facial Security Authentication Successful", "Local");
         auditService.logAction(cleanEmail, user.getRole().name(), "USER_LOGIN_SUCCESS",
-                "User", String.valueOf(user.getId()), "Logged in via Biometric + OTP", ipAddress);
+                "User", String.valueOf(user.getId()), "Logged in via Facial Security + OTP", ipAddress);
 
         return new JwtResponse(jwt, UserDto.fromEntity(user));
     }

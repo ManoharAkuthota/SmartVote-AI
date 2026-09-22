@@ -84,7 +84,7 @@ export default function AdminAuditLogsPage() {
               : 'text-slate-400 hover:text-white hover:bg-slate-900'
           }`}
         >
-          Biometric & OTP Access History ({loginHistories.length})
+          Facial Security & OTP Access History ({loginHistories.length})
         </button>
       </div>
 

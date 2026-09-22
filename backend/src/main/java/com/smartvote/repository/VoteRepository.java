@@ -19,6 +19,10 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     List<Vote> findByVoterIdOrderByVotedAtDesc(Long voterId);
 
+    List<Vote> findByElectionId(Long electionId);
+
+    void deleteByElectionId(Long electionId);
+
     long countByElectionId(Long electionId);
 
     @Query("SELECT v FROM Vote v JOIN FETCH v.election JOIN FETCH v.candidate WHERE v.voter.id = :voterId ORDER BY v.votedAt DESC")

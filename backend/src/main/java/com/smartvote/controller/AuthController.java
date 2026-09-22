@@ -28,7 +28,7 @@ public class AuthController {
         String userAgent = servletRequest.getHeader("User-Agent");
         UserDto userDto = authService.register(request, ipAddress, userAgent);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Digital identity and biometric profile registered successfully", userDto));
+                .body(ApiResponse.success("Digital identity and facial security profile registered successfully", userDto));
     }
 
     @PostMapping("/login-init")
@@ -48,7 +48,7 @@ public class AuthController {
         String ipAddress = extractIpAddress(servletRequest);
         String userAgent = servletRequest.getHeader("User-Agent");
         LoginInitResponse response = authService.verifyFace(request, ipAddress, userAgent);
-        return ResponseEntity.ok(ApiResponse.success("Face biometric and liveness verified. OTP sent to email.", response));
+        return ResponseEntity.ok(ApiResponse.success("Facial security and liveness verified. OTP sent to email.", response));
     }
 
     @PostMapping("/verify-otp")

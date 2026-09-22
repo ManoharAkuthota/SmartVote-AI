@@ -140,7 +140,7 @@ export default function OtpModal({
 
         <h3 className="text-xl font-bold text-center text-slate-900 dark:text-white">Two-Factor Identity Verification</h3>
         <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
-          Biometric profile verified. Enter the 6-digit cryptographic verification code dispatched to:
+          Facial security verified. Enter the 6-digit cryptographic verification code dispatched to:
         </p>
         <p className="text-xs font-mono font-semibold text-center text-blue-600 dark:text-blue-400 mt-1">{email}</p>
 

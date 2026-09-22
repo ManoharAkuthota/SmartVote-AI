@@ -1,17 +1,17 @@
-# SmartVote AI — System Architecture & Design
+# SmartVote Bharat — System Architecture & Design
 
-SmartVote AI is an enterprise-grade cryptographic democratic voting engine built on modern cloud-native principles, browser-native biometrics, and zero-knowledge receipts.
+SmartVote Bharat is an enterprise-grade cryptographic democratic voting engine built on modern cloud-native principles, browser-native facial security, and zero-knowledge receipts.
 
 ---
 
 ## 1. High-Level Architecture Overview
 
-SmartVote AI decouples biometric authentication, cryptographic ballot sealing, and administrative telemetry into resilient modular layers.
+SmartVote Bharat decouples facial security authentication, cryptographic ballot sealing, and administrative telemetry into resilient modular layers.
 
 ```mermaid
 graph TD
     subgraph ClientLayer ["Client Presentation Layer (React 18 + Vite + Tailwind)"]
-        UI["Futuristic Dark Glassmorphic UI"]
+        UI["Modern ECI Glassmorphic UI"]
         Webcam["HTML5 MediaDevices Webcam"]
         FaceEngine["In-Browser Neural Engine (Face-api.js)"]
         Liveness["Anti-Spoof Liveness (EAR Blink + Head Pose Yaw)"]
@@ -31,7 +31,7 @@ graph TD
         VoteSvc["VoteService (Atomic Ballot Ledger)"]
         ElectionSvc["ElectionService (Ballot Lifecycle)"]
         AuditSvc["AuditService & Threat Telemetry"]
-        CloudinarySvc["CloudinaryService (Biometric Storage)"]
+        CloudinarySvc["CloudinaryService (Facial Portrait Storage)"]
         EmailSvc["EmailService (HTML Gmail SMTP)"]
         WSServer["WebSocket STOMP Broker (/topic/elections)"]
     end
@@ -58,9 +58,9 @@ graph TD
 
 ---
 
-## 2. Multi-Stage Biometric Authentication Flow
+## 2. Multi-Stage Facial Security Authentication Flow
 
-The following sequence diagram details the 3-stage authentication protocol verifying password credentials, browser-native biometric liveness, and two-factor OTP:
+The following sequence diagram details the 3-stage authentication protocol verifying password credentials, browser-native facial security liveness, and two-factor OTP:
 
 ```mermaid
 sequenceDiagram
@@ -93,7 +93,7 @@ sequenceDiagram
         Backend-->>Browser: 200 OK {nextStep: "OTP_VERIFY", sessionToken}
     else Similarity < 0.85
         Backend->>DB: Increment failed attempts counter
-        Backend-->>Browser: 401 Unauthorized "Biometric mismatch"
+        Backend-->>Browser: 401 Unauthorized "Facial verification mismatch"
     end
 
     Voter->>Browser: Enters 6-Digit OTP Code

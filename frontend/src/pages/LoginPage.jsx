@@ -76,7 +76,7 @@ export default function LoginPage() {
   };
 
   // STEP 2: Live Face Verification Complete
-  const handleFaceSuccess = async (biometricData) => {
+  const handleFaceSuccess = async (faceData) => {
     setIsSubmitting(true);
     setErrorMsg(null);
 
@@ -84,10 +84,10 @@ export default function LoginPage() {
       const res = await api.post('/auth/verify-face', {
         email: formData.email,
         sessionToken,
-        liveEmbedding: biometricData.embedding,
-        livenessPassed: biometricData.livenessPassed,
-        blinkDetected: biometricData.blinkDetected,
-        headTurnDetected: biometricData.headTurnDetected,
+        liveEmbedding: faceData.embedding,
+        livenessPassed: faceData.livenessPassed,
+        blinkDetected: faceData.blinkDetected,
+        headTurnDetected: faceData.headTurnDetected,
         deviceFingerprint: navigator.userAgent,
       });
 
@@ -98,10 +98,10 @@ export default function LoginPage() {
         }
         setStep(3);
       } else {
-        setErrorMsg(res.data?.message || 'Biometric identity match could not be confirmed.');
+        setErrorMsg(res.data?.message || 'Facial identity match could not be confirmed.');
       }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Biometric match score insufficient. Please retry.');
+      setErrorMsg(err.response?.data?.message || 'Facial match score insufficient. Please retry.');
     } finally {
       setIsSubmitting(false);
     }
@@ -137,7 +137,7 @@ export default function LoginPage() {
               </div>
               <h2 className="text-xl font-bold text-white">Official E-Voter Portal</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Enter your credentials to begin secure multi-factor biometric authentication.
+                Enter your credentials to begin secure multi-factor facial security authentication.
               </p>
             </div>
 
@@ -217,7 +217,7 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  <span>Continue to Biometric Verification</span>
+                  <span>Continue to Facial Verification</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -232,11 +232,11 @@ export default function LoginPage() {
           </form>
         )}
 
-        {/* STEP 2: Facial Biometric Verification */}
+        {/* STEP 2: Facial Security Verification */}
         {step === 2 && (
           <div>
             <div className="text-center mb-4">
-              <h2 className="text-xl font-bold text-white">Biometric Identity Verification</h2>
+              <h2 className="text-xl font-bold text-white">Facial Security Verification</h2>
               <p className="text-xs text-slate-400 mt-1">
                 Position your face within the oval guide to verify against your enrolled electoral photo.
               </p>
@@ -246,7 +246,7 @@ export default function LoginPage() {
               <div className="mb-4 p-3 rounded-xl bg-rose-950/80 border border-rose-500/50 flex items-start space-x-2.5 text-rose-200 text-xs text-left shadow-lg">
                 <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <p className="font-semibold text-rose-300">Biometric Identity Unconfirmed</p>
+                  <p className="font-semibold text-rose-300">Facial Identity Unconfirmed</p>
                   <p className="text-[11px] text-rose-200/90 leading-relaxed">{errorMsg}</p>
                 </div>
               </div>

@@ -15,7 +15,7 @@
     <artifactId>smartvote-backend</artifactId>
     <version>1.0.0</version>
     <name>smartvote-backend</name>
-    <description>SmartVote AI - Secure Biometric Online Voting System Backend</description>
+    <description>SmartVote Bharat - Secure Facial Security Online Voting System Backend</description>
 
     <properties>
         <java.version>21</java.version>

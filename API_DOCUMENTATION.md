@@ -60,7 +60,7 @@ All API responses follow a standardized JSON envelope structure:
 }
 ```
 
-### 1.3 Login Step 2 — Facial Liveness & Biometric Match
+### 1.3 Login Step 2 — Facial Liveness & Face Verification Match
 - **Endpoint**: `POST /api/auth/verify-face`
 - **Access**: Public (requires valid `sessionToken`)
 - **Request Body**:

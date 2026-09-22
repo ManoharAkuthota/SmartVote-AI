@@ -90,7 +90,7 @@ export default function LandingPage() {
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold text-white">Three-Tier Electoral Security Architecture</h2>
           <p className="mt-2 text-xs sm:text-sm text-slate-400">
-            Engineered to Election Commission of India standards with on-device biometric liveness, multi-factor Aadhaar verification, and tamper-evident cryptographic auditability.
+            Engineered to Election Commission of India standards with on-device facial security liveness, multi-factor Aadhaar verification, and tamper-evident cryptographic auditability.
           </p>
         </div>
 
@@ -210,7 +210,7 @@ export default function LandingPage() {
             <div>
               <h3 className="text-sm font-bold text-white">Electoral Privacy & Constitutional Protocol</h3>
               <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
-                SmartVote Bharat strictly enforces secret ballot anonymity under Article 324 of the Constitution of India. When a citizen authenticates via facial biometric capture and casts a vote, their biometric identifier is sealed on the authorization ledger to prevent duplicate voting, while the vote choice is decoupled and sealed cryptographically.
+                SmartVote Bharat strictly enforces secret ballot anonymity under Article 324 of the Constitution of India. When a citizen authenticates via facial security verification and casts a vote, their digital authorization token is sealed on the electoral ledger to prevent duplicate voting, while the vote choice is decoupled and sealed cryptographically.
               </p>
             </div>
           </div>

@@ -9,9 +9,11 @@ import com.smartvote.entity.enums.ElectionStatus;
 import com.smartvote.entity.enums.NotificationType;
 import com.smartvote.entity.enums.Role;
 import com.smartvote.entity.enums.UserStatus;
+import com.smartvote.repository.CandidateRepository;
 import com.smartvote.repository.ElectionRepository;
 import com.smartvote.repository.NotificationRepository;
 import com.smartvote.repository.UserRepository;
+import com.smartvote.repository.VoteRepository;
 import com.smartvote.service.FaceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,17 +32,23 @@ public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final ElectionRepository electionRepository;
+    private final CandidateRepository candidateRepository;
+    private final VoteRepository voteRepository;
     private final NotificationRepository notificationRepository;
     private final PasswordEncoder passwordEncoder;
     private final FaceService faceService;
 
     public DataInitializer(UserRepository userRepository,
                            ElectionRepository electionRepository,
+                           CandidateRepository candidateRepository,
+                           VoteRepository voteRepository,
                            NotificationRepository notificationRepository,
                            PasswordEncoder passwordEncoder,
                            FaceService faceService) {
         this.userRepository = userRepository;
         this.electionRepository = electionRepository;
+        this.candidateRepository = candidateRepository;
+        this.voteRepository = voteRepository;
         this.notificationRepository = notificationRepository;
         this.passwordEncoder = passwordEncoder;
         this.faceService = faceService;
@@ -58,8 +66,12 @@ public class DataInitializer implements CommandLineRunner {
             admin.setFullName("Chief Election Commissioner (Admin)");
             admin.setVoterIdNumber("ECI-HQ-ADM01");
             admin.setMobileNumber("+91-9876543210");
+            admin.setPassword(passwordEncoder.encode("Admin@123"));
+            admin.setStatus(UserStatus.APPROVED);
+            admin.setFailedLoginAttempts(0);
+            admin.setAccountLockedUntil(null);
             userRepository.save(admin);
-            log.info("Updated Indian Election Commission Admin: admin@smartvote.ai (ECI-HQ-ADM01)");
+            log.info("Updated Indian Election Commission Admin: admin@smartvote.ai (ECI-HQ-ADM01) / Admin@123");
         }, () -> {
             User admin = new User();
             admin.setFullName("Chief Election Commissioner (Admin)");
@@ -81,8 +93,12 @@ public class DataInitializer implements CommandLineRunner {
             voter.setFullName("Rajesh Kumar Verma");
             voter.setVoterIdNumber("IND-DL-8941205");
             voter.setMobileNumber("+91-9876543211");
+            voter.setPassword(passwordEncoder.encode("Voter@123"));
+            voter.setStatus(UserStatus.APPROVED);
+            voter.setFailedLoginAttempts(0);
+            voter.setAccountLockedUntil(null);
             userRepository.save(voter);
-            log.info("Updated Indian Citizen Voter: voter@smartvote.ai (IND-DL-8941205)");
+            log.info("Updated Indian Citizen Voter: voter@smartvote.ai (IND-DL-8941205) / Voter@123");
         }, () -> {
             User voter = new User();
             voter.setFullName("Rajesh Kumar Verma");
@@ -108,7 +124,7 @@ public class DataInitializer implements CommandLineRunner {
 
             // Welcome notification in official ECI context
             notificationRepository.save(new Notification(savedVoter, "Digital Voter Identity Verified (EPIC: IND-DL-8941205)",
-                    "Your biometric citizen identity has been authenticated by the Election Commission of India. You may participate in active parliamentary and assembly ballots.",
+                    "Your citizen identity has been authenticated with facial security by the Election Commission of India. You may participate in active parliamentary and assembly ballots.",
                     NotificationType.SUCCESS));
 
             log.info("Initialized default Indian Citizen Voter: voter@smartvote.ai / Voter@123 (EPIC: IND-DL-8941205)");
@@ -117,15 +133,30 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedElections() {
         List<Election> existing = electionRepository.findAll();
-        boolean hasIndian = existing.stream().anyMatch(e -> e.getTitle() != null && e.getTitle().contains("Lok Sabha"));
 
-        // If old elections exist, mark them COMPLETED so they don't appear as active ballots
+        // Purge any legacy non-Indian elections so only authentic Indian elections exist
         for (Election el : existing) {
-            if (el.getTitle() != null && !el.getTitle().contains("Lok Sabha") && !el.getTitle().contains("Vidhan Sabha") && !el.getTitle().contains("Nagar Nigam")) {
-                el.setStatus(ElectionStatus.COMPLETED);
+            if (el.getTitle() != null && !el.getTitle().contains("Lok Sabha") && !el.getTitle().contains("Vidhan Sabha") && !el.getTitle().contains("Municipal Corporation") && !el.getTitle().contains("Rajya Sabha")) {
+                log.info("Purging legacy non-Indian election: [{}] (id: {})", el.getTitle(), el.getId());
+                try {
+                    electionRepository.deleteVotesByElectionId(el.getId());
+                    electionRepository.deleteCandidatesByElectionId(el.getId());
+                    electionRepository.deleteElectionByIdDirect(el.getId());
+                    log.info("Purged legacy non-Indian election id: {}", el.getId());
+                } catch (Exception ex) {
+                    log.warn("Could not delete legacy election {}: {}", el.getId(), ex.getMessage());
+                }
+            } else if (el.getTitle() != null && el.getTitle().contains("Municipal Corporation")) {
+                // Ensure Municipal Corporation (Nagar Nigam) is ACTIVE
+                el.setTitle("Greater Municipal Corporation Civic Council 2026 (Nagar Nigam)");
+                el.setStatus(ElectionStatus.ACTIVE);
+                el.setStartDate(LocalDateTime.now().minusDays(1));
+                el.setEndDate(LocalDateTime.now().plusDays(10));
                 electionRepository.save(el);
             }
         }
+
+        boolean hasIndian = electionRepository.findAll().stream().anyMatch(e -> e.getTitle() != null && e.getTitle().contains("Lok Sabha"));
 
         if (!hasIndian) {
             log.info("Seeding authentic Indian democratic elections (Lok Sabha, Vidhan Sabha, Nagar Nigam, Rajya Sabha)...");

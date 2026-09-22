@@ -89,7 +89,7 @@ export function checkLightingQuality(videoEl) {
 /**
  * Detects single face with landmarks and 128-d descriptor.
  */
-export async function detectFaceWithBiometrics(videoEl) {
+export async function detectFaceWithLiveness(videoEl) {
   if (!modelsLoaded) {
     const loaded = await loadFaceApiModels();
     if (!loaded) return null;
@@ -135,6 +135,8 @@ export async function detectFaceWithBiometrics(videoEl) {
     confidence: singleDetection.detection.score
   };
 }
+
+export const detectFaceWithBiometrics = detectFaceWithLiveness;
 
 /**
  * Generates a mock 128-d embedding for offline/fallback demo testing.
