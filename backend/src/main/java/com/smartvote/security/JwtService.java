@@ -80,7 +80,21 @@ public class JwtService {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        byte[] keyBytes;
+        try {
+            keyBytes = Decoders.BASE64.decode(secretKey);
+        } catch (Exception e1) {
+            try {
+                keyBytes = Decoders.BASE64URL.decode(secretKey);
+            } catch (Exception e2) {
+                keyBytes = secretKey.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            }
+        }
+        if (keyBytes.length < 32) {
+            byte[] padded = new byte[32];
+            System.arraycopy(keyBytes, 0, padded, 0, keyBytes.length);
+            keyBytes = padded;
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

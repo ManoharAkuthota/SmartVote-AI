@@ -6,18 +6,37 @@
   :root {
     --bg-primary: #030712;
     --text-primary: #f8fafc;
+    --card-bg: rgba(15, 23, 42, 0.7);
+    --card-border: rgba(0, 240, 255, 0.2);
+    --input-bg: rgba(3, 7, 18, 0.6);
+    --input-border: #334155;
+    --subtext: #94a3b8;
   }
 
-  .light {
+  html.light,
+  :root.light {
     --bg-primary: #f8fafc;
     --text-primary: #0f172a;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --subtext: #64748b;
   }
 
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
+}
+
+/* App Container */
+.app-container {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Cyber Grid Background */
@@ -87,4 +106,261 @@
   z-index: 20;
   background-size: 100% 2px, 3px 100%;
   pointer-events: none;
+}
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES
+   Applied globally when <html class="light">
+   ========================================================================== */
+
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Light Backgrounds */
+html.light body,
+html.light .app-container {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Navbars & Fixed Headers in Light Mode */
+html.light nav {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Mobile Bottom Bar */
+html.light .fixed.bottom-0 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Footers */
+html.light footer {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+html.light footer .border-b {
+  border-color: #e2e8f0 !important;
+  background-color: #f8fafc !important;
+}
+
+/* Cards & Elevated Panels */
+html.light .bg-slate-950,
+html.light .bg-slate-950\/70,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/85,
+html.light .bg-slate-950\/90,
+html.light .bg-slate-950\/95,
+html.light .bg-slate-900,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/90,
+html.light .bg-slate-900\/95 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .bg-slate-800,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/80 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Badge & Chip Tint Backgrounds in Light */
+html.light .bg-cyan-950\/30,
+html.light .bg-cyan-950\/40,
+html.light .bg-cyan-500\/10,
+html.light .bg-cyan-500\/15,
+html.light .bg-cyan-500\/20 {
+  background-color: #ecfeff !important;
+}
+
+html.light .bg-purple-950\/30,
+html.light .bg-purple-950\/40,
+html.light .bg-purple-500\/10,
+html.light .bg-purple-500\/15,
+html.light .bg-purple-500\/20 {
+  background-color: #faf5ff !important;
+}
+
+html.light .bg-emerald-950\/30,
+html.light .bg-emerald-950\/40,
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/15,
+html.light .bg-emerald-500\/20 {
+  background-color: #ecfdf5 !important;
+}
+
+html.light .bg-amber-950\/30,
+html.light .bg-amber-950\/40,
+html.light .bg-amber-500\/10,
+html.light .bg-amber-500\/15,
+html.light .bg-amber-500\/20 {
+  background-color: #fffbeb !important;
+}
+
+html.light .bg-rose-950\/30,
+html.light .bg-rose-950\/40,
+html.light .bg-rose-500\/10,
+html.light .bg-rose-500\/15,
+html.light .bg-rose-500\/20 {
+  background-color: #fff1f2 !important;
+}
+
+/* Borders */
+html.light .border-slate-900,
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-700,
+html.light .border-slate-700\/40,
+html.light .border-slate-700\/60 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .border-cyan-500\/20,
+html.light .border-cyan-500\/30,
+html.light .border-cyan-500\/40,
+html.light .border-cyan-400\/40 {
+  border-color: rgba(2, 132, 199, 0.3) !important;
+}
+
+html.light .border-purple-500\/20,
+html.light .border-purple-500\/30 {
+  border-color: rgba(124, 58, 237, 0.3) !important;
+}
+
+/* Text Hierarchy */
+html.light .text-white,
+html.light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400 {
+  color: #64748b !important;
+}
+
+html.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* High-contrast brand accents in Light */
+html.light .text-cyan-400,
+html.light .text-cyan-300 {
+  color: #0284c7 !important; /* sky-600 */
+}
+
+html.light .text-purple-400,
+html.light .text-purple-300 {
+  color: #7c3aed !important; /* purple-600 */
+}
+
+html.light .text-emerald-400,
+html.light .text-emerald-300 {
+  color: #059669 !important; /* emerald-600 */
+}
+
+html.light .text-amber-400,
+html.light .text-amber-300 {
+  color: #d97706 !important; /* amber-600 */
+}
+
+html.light .text-rose-400,
+html.light .text-rose-300 {
+  color: #e11d48 !important; /* rose-600 */
+}
+
+/* Form inputs & controls in Light */
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2) !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Glassmorphism in Light */
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.88) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light .glass-panel-glow {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(2, 132, 199, 0.3) !important;
+  box-shadow: 0 0 25px rgba(2, 132, 199, 0.1) !important;
+}
+
+/* Cyber Grid in Light */
+html.light .cyber-grid {
+  background-image: linear-gradient(to right, rgba(0, 150, 180, 0.07) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 150, 180, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Light Scrollbar */
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border: 1px solid #94a3b8;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+/* Light Shadows */
+html.light .shadow-neon-cyan {
+  box-shadow: 0 4px 20px rgba(2, 132, 199, 0.2) !important;
+}
+
+html.light .shadow-neon-purple {
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.2) !important;
+}
+
+html.light .shadow-neon-green {
+  box-shadow: 0 4px 20px rgba(5, 150, 105, 0.2) !important;
 }

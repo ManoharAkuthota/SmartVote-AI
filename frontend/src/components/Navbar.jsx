@@ -438,6 +438,31 @@ export default function Navbar() {
               ))}
             </div>
           </div>
+
+          {/* Theme & Voice Accessibility Controls on Mobile */}
+          <div className="pt-3 border-t border-slate-800 grid grid-cols-2 gap-2">
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center space-x-2 p-2 rounded-xl border border-slate-800 bg-slate-900/60 text-xs font-semibold text-slate-300 hover:text-amber-400 transition"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-purple-400" />}
+              <span>{isDark ? 'Light Theme' : 'Dark Theme'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                const next = !voiceEnabled;
+                setVoiceEnabled(next);
+                if (next) speak("Voice accessibility assistance activated.");
+              }}
+              className={`flex items-center justify-center space-x-2 p-2 rounded-xl border text-xs font-semibold transition ${
+                voiceEnabled ? 'bg-cyan-500/20 border-cyan-400 text-cyan-400' : 'bg-slate-900/60 border-slate-800 text-slate-400'
+              }`}
+            >
+              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              <span>{voiceEnabled ? 'Voice On' : 'Voice Off'}</span>
+            </button>
+          </div>
         </div>
       )}
     </nav>

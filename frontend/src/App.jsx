@@ -27,7 +27,7 @@ export default function App() {
       <LanguageProvider>
         <AuthProvider>
           <BrowserRouter>
-            <div className="flex flex-col min-h-screen bg-[#030712] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-300">
+            <div className="flex flex-col min-h-screen app-container transition-colors duration-200 selection:bg-cyan-500/30 selection:text-cyan-700 dark:selection:text-cyan-300">
               <Navbar />
               <main className="flex-1 pb-20 md:pb-0">
                 <Routes>

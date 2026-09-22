@@ -34,7 +34,7 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:antigravity_smartvote_ai_super_secret_jwt_key_2026_production_grade_token_signing_secret_key_384_bits}
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
     expiration-ms: 86400000 # 24 hours
     otp-expiration-seconds: 120 # 2 minutes
   face:
