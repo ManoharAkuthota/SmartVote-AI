@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Home,
@@ -43,6 +43,23 @@ export default function Sidebar() {
     isDesktopVisible,
   } = useSidebar();
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    closeMobileSidebar();
+  }, [location.pathname]);
+
+  // Lock background scroll when mobile sidebar is open
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileOpen]);
+
   const handleLogout = () => {
     closeMobileSidebar();
     logout();
@@ -78,16 +95,20 @@ export default function Sidebar() {
           1. MOBILE SIDEBAR DRAWER (Slide-in drawer with backdrop blur)
           ========================================================================= */}
       {isMobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
+        <div className="fixed inset-0 z-[100] lg:hidden">
           {/* Backdrop overlay */}
           <div
             onClick={closeMobileSidebar}
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-300 animate-fadeIn"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
             aria-hidden="true"
           />
 
           {/* Drawer content */}
-          <div className="relative w-80 max-w-[85vw] h-full bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col z-50 transform transition-transform duration-300 ease-out overflow-y-auto">
+          <div
+            className="fixed inset-y-0 left-0 z-[101] w-80 max-w-[85vw] h-full bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col transform transition-transform duration-300 ease-out overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+          >
             {/* National Tricolor Top Accent */}
             <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-white to-emerald-600 shrink-0" />
 

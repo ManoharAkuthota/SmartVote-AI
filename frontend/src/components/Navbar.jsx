@@ -11,19 +11,25 @@ export default function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { lang, changeLanguage, t, speak, voiceEnabled, setVoiceEnabled } = useLanguage();
-  const { toggleMobileSidebar, toggleCollapse, isCollapsed } = useSidebar();
+  const { toggleMobileSidebar, toggleCollapse, isCollapsed, isMobileOpen } = useSidebar();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleSidebarToggle = () => {
+    if (window.innerWidth >= 1024) {
+      toggleCollapse();
+    } else {
+      toggleMobileSidebar();
+    }
+  };
 
   const [notifications, setNotifications] = useState([]);
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
 
-  // Close mobile drawer on route change
+  // Close extra drawers on route change
   useEffect(() => {
-    setMobileMenuOpen(false);
     setShowNotifDrawer(false);
     setLangDropdownOpen(false);
   }, [location.pathname]);
@@ -79,7 +85,7 @@ export default function Navbar() {
           {/* Left: Sidebar Toggle Button & Brand Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             <button
-              onClick={toggleMobileSidebar}
+              onClick={handleSidebarToggle}
               className="p-2 rounded-xl bg-slate-900/60 dark:bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:text-amber-400 hover:border-amber-400/40 transition shadow-sm"
               title="Toggle Portal Sidebar"
               aria-label="Toggle Portal Sidebar"
@@ -318,205 +324,17 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Mobile Hamburger Menu Toggle (Visible on Mobile) */}
+            {/* Mobile Navigation Drawer Toggle */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-500 md:hidden transition"
+              onClick={toggleMobileSidebar}
+              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-500 md:hidden transition shadow-sm"
               aria-label="Toggle mobile menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMobileOpen ? <X className="w-5 h-5 text-amber-500" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Drawer / Dropdown Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
-          {/* User Info on Mobile if authenticated */}
-          {isAuthenticated ? (
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-amber-500/20 space-y-2.5">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400 shrink-0">
-                  <img
-                    src={user?.faceImageUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80'}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user?.fullName}</div>
-                  <div className="text-[11px] text-amber-600 dark:text-amber-400 font-mono truncate">{user?.voterIdNumber || (isAdmin ? 'CHIEF ELECTION COMMISSIONER' : 'VERIFIED INDIAN VOTER')}</div>
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="w-full py-2.5 px-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-xs flex items-center justify-center space-x-2 hover:bg-rose-500/25 transition shadow-sm cursor-pointer"
-              >
-                <LogOut className="w-4 h-4 shrink-0" />
-                <span>{t('nav_logout')} (Sign Out)</span>
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2 pt-1 pb-2">
-              <Link
-                to="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-xl text-center text-xs font-bold text-slate-200 bg-slate-900 border border-slate-700 hover:bg-slate-800 transition"
-              >
-                {t('nav_login')}
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 shadow-sm transition"
-              >
-                {t('nav_register')}
-              </Link>
-            </div>
-          )}
-
-          {/* Navigation Links */}
-          <div className="space-y-1 pt-1">
-            <Link
-              to="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                isActive('/') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:bg-slate-900'
-              }`}
-            >
-              <span>{t('nav_home')}</span>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
-            </Link>
-            <Link
-              to="/elections"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                isActive('/elections') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:bg-slate-900'
-              }`}
-            >
-              <span>{t('nav_elections')}</span>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
-            </Link>
-            <Link
-              to="/verify"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                isActive('/verify') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:bg-slate-900'
-              }`}
-            >
-              <span>{t('nav_verify')}</span>
-              <ChevronRight className="w-4 h-4 text-slate-500" />
-            </Link>
-
-            {isAuthenticated && !isAdmin && (
-              <Link
-                to="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                  isActive('/dashboard') ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/30' : 'text-slate-300 hover:bg-slate-900'
-                }`}
-              >
-                <span>{t('nav_dashboard')}</span>
-                <ChevronRight className="w-4 h-4 text-slate-500" />
-              </Link>
-            )}
-
-            {isAuthenticated && isAdmin && (
-              <div className="space-y-1 pt-1 border-t border-slate-800/80">
-                <Link
-                  to="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition ${
-                    isActive('/admin') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
-                  }`}
-                >
-                  <span>{t('nav_admin_overview')}</span>
-                  <ChevronRight className="w-4 h-4 text-slate-500" />
-                </Link>
-                <Link
-                  to="/admin/elections"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition ${
-                    isActive('/admin/elections') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
-                  }`}
-                >
-                  <span>{t('nav_admin_elections')}</span>
-                  <ChevronRight className="w-4 h-4 text-slate-500" />
-                </Link>
-                <Link
-                  to="/admin/voters"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition ${
-                    isActive('/admin/voters') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
-                  }`}
-                >
-                  <span>{t('nav_admin_voters')}</span>
-                  <ChevronRight className="w-4 h-4 text-slate-500" />
-                </Link>
-                <Link
-                  to="/admin/audit"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition ${
-                    isActive('/admin/audit') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:bg-slate-900'
-                  }`}
-                >
-                  <span>{t('nav_admin_audit')}</span>
-                  <ChevronRight className="w-4 h-4 text-slate-500" />
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Indian Language Selector on Mobile */}
-          <div className="pt-2 border-t border-slate-800">
-            <div className="text-[11px] font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-amber-400" /> भारतीय भाषाएं (Select Language)
-            </div>
-            <div className="grid grid-cols-4 gap-1.5">
-              {SUPPORTED_LANGUAGES.map((l) => (
-                <button
-                  key={l.code}
-                  onClick={() => changeLanguage(l.code)}
-                  className={`py-1.5 px-1 rounded-lg text-xs font-semibold border transition text-center ${
-                    lang === l.code
-                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-bold'
-                      : 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <span className="block text-[11px] leading-tight truncate">{l.name}</span>
-                  <span className="text-[9px] text-slate-500 uppercase">{l.code}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Theme & Voice Accessibility Controls on Mobile */}
-          <div className="pt-3 border-t border-slate-800 grid grid-cols-2 gap-2">
-            <button
-              onClick={toggleTheme}
-              className="flex items-center justify-center space-x-2 p-2 rounded-xl border border-slate-800 bg-slate-900/60 text-xs font-semibold text-slate-300 hover:text-amber-400 transition"
-            >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-purple-400" />}
-              <span>{isDark ? 'Light Theme' : 'Dark Theme'}</span>
-            </button>
-
-            <button
-              onClick={() => {
-                const next = !voiceEnabled;
-                setVoiceEnabled(next);
-                if (next) speak("Voice accessibility assistance activated.");
-              }}
-              className={`flex items-center justify-center space-x-2 p-2 rounded-xl border text-xs font-semibold transition ${
-                voiceEnabled ? 'bg-amber-500/20 border-amber-400 text-amber-400' : 'bg-slate-900/60 border-slate-800 text-slate-400'
-              }`}
-            >
-              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-              <span>{voiceEnabled ? 'Voice On' : 'Voice Off'}</span>
-            </button>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }
