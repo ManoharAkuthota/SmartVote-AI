@@ -8,6 +8,7 @@ public class LoginInitResponse {
     private String fullName;
     private boolean faceEnrolled;
     private String maskedMobile;
+    private String demoOtp;
 
     public LoginInitResponse() {
     }
@@ -67,5 +68,13 @@ public class LoginInitResponse {
 
     public void setMaskedMobile(String maskedMobile) {
         this.maskedMobile = maskedMobile;
+    }
+
+    public String getDemoOtp() {
+        return demoOtp;
+    }
+
+    public void setDemoOtp(String demoOtp) {
+        this.demoOtp = demoOtp;
     }
 }

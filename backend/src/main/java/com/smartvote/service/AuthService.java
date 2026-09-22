@@ -192,7 +192,9 @@ public class AuthService {
             String otpCode = otpService.generateAndSaveOtp(cleanEmail, OtpPurpose.LOGIN);
             emailService.sendOtpEmail(cleanEmail, otpCode, otpExpirationSeconds);
             String sessionToken = jwtService.generateTemporarySessionToken(cleanEmail, "OTP_VERIFY");
-            return new LoginInitResponse("OTP_VERIFY", sessionToken, cleanEmail, user.getFullName(), hasFace, maskedMobile);
+            LoginInitResponse resp = new LoginInitResponse("OTP_VERIFY", sessionToken, cleanEmail, user.getFullName(), hasFace, maskedMobile);
+            resp.setDemoOtp(otpCode);
+            return resp;
         }
 
         // Voter accounts require Face Verification
@@ -244,7 +246,9 @@ public class AuthService {
         auditService.logAction(cleanEmail, user.getRole().name(), "BIOMETRIC_VERIFIED",
                 "User", String.valueOf(user.getId()), "Live facial biometric and liveness verified", ipAddress);
 
-        return new LoginInitResponse("OTP_VERIFY", sessionToken, cleanEmail, user.getFullName(), true, maskedMobile);
+        LoginInitResponse resp = new LoginInitResponse("OTP_VERIFY", sessionToken, cleanEmail, user.getFullName(), true, maskedMobile);
+        resp.setDemoOtp(otpCode);
+        return resp;
     }
 
     @Transactional
@@ -286,13 +290,14 @@ public class AuthService {
     }
 
     @Transactional
-    public void resendOtp(ResendOtpRequest req) {
+    public String resendOtp(ResendOtpRequest req) {
         String cleanEmail = req.getEmail().trim().toLowerCase();
         userRepository.findByEmail(cleanEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", cleanEmail));
 
         String otpCode = otpService.generateAndSaveOtp(cleanEmail, OtpPurpose.LOGIN);
         emailService.sendOtpEmail(cleanEmail, otpCode, otpExpirationSeconds);
+        return otpCode;
     }
 
     public UserDto getCurrentUser(String email) {

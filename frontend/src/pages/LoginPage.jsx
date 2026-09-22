@@ -20,6 +20,7 @@ export default function LoginPage() {
 
   const [sessionToken, setSessionToken] = useState(null);
   const [maskedMobile, setMaskedMobile] = useState('');
+  const [demoOtp, setDemoOtp] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -55,6 +56,9 @@ export default function LoginPage() {
         const data = res.data.data;
         setSessionToken(data.sessionToken);
         setMaskedMobile(data.maskedMobile);
+        if (data.demoOtp) {
+          setDemoOtp(data.demoOtp);
+        }
 
         if (data.nextStep === 'FACE_VERIFY') {
           setStep(2);
@@ -89,6 +93,9 @@ export default function LoginPage() {
 
       if (res.data?.success) {
         setSessionToken(res.data.data.sessionToken);
+        if (res.data.data?.demoOtp) {
+          setDemoOtp(res.data.data.demoOtp);
+        }
         setStep(3);
       } else {
         setErrorMsg(res.data?.message || 'Biometric identity match could not be confirmed.');
@@ -257,6 +264,7 @@ export default function LoginPage() {
             email={formData.email}
             sessionToken={sessionToken}
             maskedMobile={maskedMobile}
+            demoOtp={demoOtp}
             onSuccess={handleOtpSuccess}
             onCancel={() => setStep(1)}
           />

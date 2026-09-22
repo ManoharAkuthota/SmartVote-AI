@@ -62,9 +62,9 @@ public class AuthController {
     }
 
     @PostMapping("/resend-otp")
-    public ResponseEntity<ApiResponse<String>> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
-        authService.resendOtp(request);
-        return ResponseEntity.ok(ApiResponse.success("New verification OTP dispatched to your registered email.", null));
+    public ResponseEntity<ApiResponse<java.util.Map<String, String>>> resendOtp(@Valid @RequestBody ResendOtpRequest request) {
+        String code = authService.resendOtp(request);
+        return ResponseEntity.ok(ApiResponse.success("New verification OTP dispatched to your registered email.", java.util.Map.of("demoOtp", code)));
     }
 
     @GetMapping("/me")

@@ -19,6 +19,11 @@ spring:
     properties:
       hibernate:
         format_sql: false
+  # Real Gmail SMTP Configuration:
+  # To send real emails to inbox, replace username with your Gmail and password with a 16-character Google App Password:
+  # 1. Enable 2-Step Verification at https://myaccount.google.com/security
+  # 2. Generate a password at https://myaccount.google.com/apppasswords
+  # 3. Enter credentials here or via SPRING_MAIL_USERNAME & SPRING_MAIL_PASSWORD environment variables.
   mail:
     host: ${SPRING_MAIL_HOST:smtp.gmail.com}
     port: ${SPRING_MAIL_PORT:587}
