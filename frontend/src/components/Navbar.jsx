@@ -72,7 +72,7 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/90 border-b border-orange-500/20 shadow-lg transition-colors">
+    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/95 dark:bg-slate-950/90 border-b border-slate-200 dark:border-orange-500/20 shadow-sm dark:shadow-lg transition-colors">
       {/* Subtle National Tricolor Accent Top Stripe */}
       <div className="h-1 w-full flex">
         <div className="h-full flex-1 bg-amber-500" />
@@ -80,13 +80,13 @@ export default function Navbar() {
         <div className="h-full flex-1 bg-emerald-600" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left: Sidebar Toggle Button & Brand Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             <button
               onClick={handleSidebarToggle}
-              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition shadow-sm"
+              className="hidden lg:flex p-2 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition shadow-sm shrink-0"
               title="Toggle Portal Sidebar"
               aria-label="Toggle Portal Sidebar"
             >
@@ -103,11 +103,11 @@ export default function Navbar() {
                     <span>SMARTVOTE</span>
                     <span className="text-amber-600 dark:text-amber-400">BHARAT</span>
                   </span>
-                  <span className="hidden xs:inline-block text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold uppercase tracking-wider">
+                  <span className="hidden sm:inline-block text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold uppercase tracking-wider">
                     ECI Verified
                   </span>
                 </div>
-                <span className="text-[7px] sm:text-[9px] text-slate-500 dark:text-slate-400 tracking-wider uppercase font-medium truncate max-w-[150px] sm:max-w-none">
+                <span className="hidden sm:inline-block text-[7px] sm:text-[9px] text-slate-500 dark:text-slate-400 tracking-wider uppercase font-medium truncate">
                   भारत निर्वाचन • National Digital E-Voting Portal
                 </span>
               </div>
@@ -119,7 +119,7 @@ export default function Navbar() {
             <Link
               to="/"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/') ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
               }`}
             >
               {t('nav_home')}
@@ -127,7 +127,7 @@ export default function Navbar() {
             <Link
               to="/elections"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/elections') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/elections') ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
               }`}
             >
               {t('nav_elections')}
@@ -135,7 +135,7 @@ export default function Navbar() {
             <Link
               to="/verify"
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                isActive('/verify') ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                isActive('/verify') ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
               }`}
             >
               {t('nav_verify')}
@@ -145,7 +145,7 @@ export default function Navbar() {
               <Link
                 to="/dashboard"
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/dashboard') ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  isActive('/dashboard') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
                 }`}
               >
                 {t('nav_dashboard')}
@@ -156,7 +156,7 @@ export default function Navbar() {
               <Link
                 to="/admin"
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  isActive('/admin') ? 'text-purple-400 bg-purple-500/10 border border-purple-500/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  isActive('/admin') ? 'text-purple-600 dark:text-purple-400 bg-purple-500/10 border border-purple-500/30 font-semibold' : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
                 }`}
               >
                 {t('nav_admin')}
@@ -165,21 +165,21 @@ export default function Navbar() {
           </div>
 
           {/* Right Action Controls */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2.5">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             {/* Indian Languages Selector (Laptop) */}
             <div className="relative hidden sm:block">
               <button
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900/80 border border-slate-700/80 text-slate-200 hover:border-amber-400 transition text-xs font-semibold"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:border-amber-400 transition text-xs font-semibold"
                 title="Select Indian Language"
               >
-                <Globe className="w-3.5 h-3.5 text-amber-400" />
+                <Globe className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                 <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.nativeName || 'English'}</span>
               </button>
 
               {langDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 py-1.5 bg-slate-900/95 border border-amber-500/30 rounded-xl shadow-2xl z-50 backdrop-blur-xl">
-                  <div className="px-3 py-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider border-b border-slate-800">
+                <div className="absolute right-0 mt-2 w-48 py-1.5 bg-white dark:bg-slate-900/95 border border-amber-500/30 rounded-xl shadow-2xl z-50 backdrop-blur-xl">
+                  <div className="px-3 py-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                     Indian Languages (भारतीय भाषाएं)
                   </div>
                   {SUPPORTED_LANGUAGES.map((l) => (
@@ -190,11 +190,11 @@ export default function Navbar() {
                         setLangDropdownOpen(false);
                       }}
                       className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition ${
-                        lang === l.code ? 'text-amber-400 font-bold bg-amber-500/10' : 'text-slate-300 hover:bg-slate-800'
+                        lang === l.code ? 'text-amber-600 dark:text-amber-400 font-bold bg-amber-500/10' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                       }`}
                     >
                       <span>{l.nativeName}</span>
-                      <span className="text-[10px] font-mono uppercase text-slate-500">{l.code}</span>
+                      <span className="text-[10px] font-mono uppercase text-slate-400 dark:text-slate-500">{l.code}</span>
                     </button>
                   ))}
                 </div>
@@ -208,7 +208,7 @@ export default function Navbar() {
                 setVoiceEnabled(next);
                 if (next) speak("Voice accessibility assistance activated. SmartVote Bharat official e-voting portal.");
               }}
-              className={`p-2 rounded-lg border transition ${
+              className={`hidden sm:inline-flex p-1.5 sm:p-2 rounded-lg border transition ${
                 voiceEnabled ? 'bg-amber-500/20 border-amber-400 text-amber-500' : 'bg-slate-100 dark:bg-slate-900/60 border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
               title="Voice Accessibility Reader"
@@ -278,12 +278,21 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* User Profile / Auth buttons (Laptop) */}
+            {/* Mobile Navigation Drawer Toggle */}
+            <button
+              onClick={toggleMobileSidebar}
+              className="p-1.5 sm:p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-500 md:hidden transition shadow-sm"
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
+            </button>
+
+            {/* TOP RIGHT CORNER: Sovereign Authentication Controls */}
             {isAuthenticated ? (
-              <div className="hidden sm:flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+              <div className="flex items-center space-x-1.5 sm:space-x-2 pl-1 sm:pl-2 border-l border-slate-200 dark:border-slate-800">
                 <Link
                   to={isAdmin ? '/admin' : '/dashboard'}
-                  className="flex items-center space-x-2 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/80 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition"
+                  className="flex items-center space-x-1.5 px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/80 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition"
                   title="View Portal Dashboard"
                 >
                   <div className="w-6 h-6 rounded-full overflow-hidden border border-amber-400 shrink-0">
@@ -293,45 +302,39 @@ export default function Navbar() {
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">
+                  <span className="hidden xs:inline-block text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[80px] sm:max-w-[110px] truncate">
                     {user?.fullName?.split(' ')[0]}
                   </span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-xs shadow-sm transition cursor-pointer"
+                  className="flex items-center space-x-1 sm:space-x-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 active:bg-rose-500/30 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-bold text-xs shadow-sm transition cursor-pointer"
                   title={t('nav_logout')}
                   aria-label={t('nav_logout')}
                 >
-                  <LogOut className="w-4 h-4 shrink-0" />
-                  <span>{t('nav_logout')}</span>
+                  <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                  <span className="hidden xs:inline-block">{t('nav_logout')}</span>
                 </button>
               </div>
             ) : (
-              <div className="hidden sm:flex items-center space-x-2">
-                <Link
-                  to="/login"
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
-                >
-                  {t('nav_login')}
-                </Link>
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
                 <Link
                   to="/register"
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-sm transition"
+                  className="hidden md:inline-flex px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 transition"
                 >
                   {t('nav_register')}
                 </Link>
+                <Link
+                  to="/login"
+                  className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 shadow-md shadow-amber-600/20 active:scale-95 transition shrink-0"
+                  title={t('nav_login')}
+                >
+                  <User className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap sm:hidden">Sign In</span>
+                  <span className="whitespace-nowrap hidden sm:inline">{t('nav_login')}</span>
+                </Link>
               </div>
             )}
-
-            {/* Mobile Navigation Drawer Toggle */}
-            <button
-              onClick={toggleMobileSidebar}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-500 md:hidden transition shadow-sm"
-              aria-label="Toggle mobile menu"
-            >
-              {isMobileOpen ? <X className="w-5 h-5 text-amber-500" /> : <Menu className="w-5 h-5" />}
-            </button>
           </div>
         </div>
       </div>

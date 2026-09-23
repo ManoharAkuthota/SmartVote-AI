@@ -14,10 +14,10 @@ export default function MobileBottomNav() {
   const isActive = (path) => location.pathname === path;
 
   const dashboardPath = !isAuthenticated ? '/login' : isAdmin ? '/admin' : '/dashboard';
-  const dashboardLabel = !isAuthenticated ? t('nav_login') : isAdmin ? t('nav_admin') : t('nav_dashboard');
+  const dashboardLabel = !isAuthenticated ? 'Voter Hub' : isAdmin ? t('nav_admin') : t('nav_dashboard');
 
   return (
-    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-2 py-1.5 pb-safe shadow-lg">
+    <div className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-2 py-1.5 pb-safe shadow-lg transition-colors">
       <div className="flex items-center justify-around max-w-md mx-auto">
         {/* Home */}
         <Link
