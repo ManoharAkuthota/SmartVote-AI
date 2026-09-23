@@ -336,144 +336,31 @@ export default function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition"
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition flex items-center justify-center shrink-0"
               title="Toggle Theme"
             >
               {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </button>
 
-            {/* Electoral Notifications Bell & Drawer */}
-            <div className="relative">
-              <button
-                onClick={() => setShowNotifDrawer(!showNotifDrawer)}
-                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition relative"
-                title={`Notifications (${unreadCount} unread)`}
-                aria-label={`Notifications (${unreadCount} unread)`}
-              >
-                <Bell className="w-4 h-4" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-amber-500 text-slate-950 font-bold text-[10px] rounded-full flex items-center justify-center animate-pulse shadow-sm">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Notifications Dropdown / Small Modal Screen */}
-              {showNotifDrawer && (
-                <>
-                  {/* Backdrop overlay to cancel/close on outside click */}
-                  <div
-                    className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1px]"
-                    onClick={() => setShowNotifDrawer(false)}
-                    aria-hidden="true"
-                  />
-
-                  <div className="fixed sm:absolute right-2 sm:right-0 top-18 sm:top-full mt-2 w-[calc(100vw-1rem)] sm:w-96 max-w-sm sm:max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-amber-500/30 rounded-2xl shadow-2xl p-3.5 sm:p-4 z-50 backdrop-blur-2xl transition-all">
-                    {/* Header with Title, Count Badges, and Cancel/Close Button */}
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 mb-2.5">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
-                          <Bell className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                            Electoral Alerts
-                          </h4>
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300">
-                              {unreadCount} Unread
-                            </span>
-                            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                              • {notifications.length} Total
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Header Cancel / Close Button */}
-                      <button
-                        onClick={() => setShowNotifDrawer(false)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition"
-                        title="Cancel / Close notifications"
-                        aria-label="Cancel and close notifications"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* Notification Items List */}
-                    <div className="max-h-64 sm:max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-                      {notifications.length === 0 ? (
-                        <div className="text-center py-6 text-slate-400 text-xs">
-                          No electoral notifications at this time.
-                        </div>
-                      ) : (
-                        notifications.map((n) => (
-                          <div
-                            key={n.id}
-                            onClick={() => markNotificationRead(n.id)}
-                            className={`p-2.5 rounded-xl border text-xs cursor-pointer transition relative group ${
-                              n.read
-                                ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                                : 'bg-amber-500/10 dark:bg-amber-950/40 border-amber-500/40 text-slate-900 dark:text-slate-100 hover:border-amber-500'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <span className="font-bold text-amber-700 dark:text-amber-300 text-xs flex items-center gap-1.5">
-                                {!n.read && (
-                                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-                                )}
-                                {n.title}
-                              </span>
-                              <span className="text-[9px] text-slate-500 dark:text-slate-400 whitespace-nowrap font-mono shrink-0">
-                                {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST
-                              </span>
-                            </div>
-                            <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-                              {n.message}
-                            </p>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Footer Actions: Mark all read + Cancel button */}
-                    <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-2.5 mt-2.5">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={markAllNotificationsRead}
-                          disabled={unreadCount === 0}
-                          className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-40 disabled:hover:no-underline"
-                        >
-                          Mark all read
-                        </button>
-                        <span className="text-slate-300 dark:text-slate-700">•</span>
-                        <button
-                          onClick={handleSimulateAlert}
-                          className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                          title="Simulate receiving a new live notification"
-                        >
-                          + Test Alert
-                        </button>
-                      </div>
-
-                      {/* Explicit Cancel Button */}
-                      <button
-                        onClick={() => setShowNotifDrawer(false)}
-                        className="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition border border-slate-300 dark:border-slate-700 shadow-sm"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                </>
+            {/* Electoral Notifications Bell Button */}
+            <button
+              onClick={() => setShowNotifDrawer(!showNotifDrawer)}
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition relative flex items-center justify-center shrink-0 cursor-pointer"
+              title={`Notifications (${unreadCount} unread)`}
+              aria-label={`Notifications (${unreadCount} unread)`}
+            >
+              <Bell className="w-4 h-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-amber-500 text-slate-950 font-bold text-[10px] rounded-full flex items-center justify-center animate-pulse shadow-sm">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
               )}
-            </div>
+            </button>
 
             {/* Mobile Navigation Drawer Toggle */}
             <button
               onClick={toggleMobileSidebar}
-              className="p-1.5 sm:p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-500 md:hidden transition shadow-sm"
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-500 md:hidden transition shadow-sm flex items-center justify-center shrink-0"
               aria-label="Toggle mobile menu"
             >
               {isMobileOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
@@ -532,12 +419,132 @@ export default function Navbar() {
       </div>
     </nav>
 
+    {/* Full-screen Backdrop & Notification Modal (Top-level, preventing backdrop-filter containment trap) */}
+    {showNotifDrawer && (
+      <div className="fixed inset-0 z-[100] flex flex-col justify-start items-center sm:items-end p-2.5 sm:p-4 pt-16 sm:pt-20">
+        {/* Full-screen Backdrop Overlay */}
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity cursor-pointer"
+          onClick={() => setShowNotifDrawer(false)}
+          onTouchEnd={() => setShowNotifDrawer(false)}
+          aria-hidden="true"
+        />
+
+        {/* Notification Modal Window */}
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Electoral Notifications"
+          className="relative z-10 w-full max-w-sm sm:max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-amber-500/30 rounded-2xl shadow-2xl p-3.5 sm:p-4 backdrop-blur-2xl transition-all max-h-[82vh] flex flex-col animate-in fade-in slide-in-from-top-2 duration-200"
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
+          {/* Header with Title, Count Badges, and Cancel/Close Button */}
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 mb-2.5 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                <Bell className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                  Electoral Alerts
+                </h4>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                    {unreadCount} Unread
+                  </span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                    • {notifications.length} Total
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Header Cancel / Close Button */}
+            <button
+              onClick={() => setShowNotifDrawer(false)}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition"
+              title="Cancel / Close notifications"
+              aria-label="Cancel and close notifications"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Notification Items List */}
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+            {notifications.length === 0 ? (
+              <div className="text-center py-8 text-slate-400 text-xs">
+                No electoral notifications at this time.
+              </div>
+            ) : (
+              notifications.map((n) => (
+                <div
+                  key={n.id}
+                  onClick={() => markNotificationRead(n.id)}
+                  className={`p-2.5 rounded-xl border text-xs cursor-pointer transition relative group ${
+                    n.read
+                      ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                      : 'bg-amber-500/10 dark:bg-amber-950/40 border-amber-500/40 text-slate-900 dark:text-slate-100 hover:border-amber-500'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <span className="font-bold text-amber-700 dark:text-amber-300 text-xs flex items-center gap-1.5">
+                      {!n.read && (
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                      )}
+                      {n.title}
+                    </span>
+                    <span className="text-[9px] text-slate-500 dark:text-slate-400 whitespace-nowrap font-mono shrink-0">
+                      {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST
+                    </span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
+                    {n.message}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Footer Actions: Mark all read + Cancel button */}
+          <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-2.5 mt-2.5 shrink-0">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={markAllNotificationsRead}
+                disabled={unreadCount === 0}
+                className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-40 disabled:hover:no-underline"
+              >
+                Mark all read
+              </button>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <button
+                onClick={handleSimulateAlert}
+                className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                title="Simulate receiving a new live notification"
+              >
+                + Test Alert
+              </button>
+            </div>
+
+            {/* Explicit Cancel Button */}
+            <button
+              onClick={() => setShowNotifDrawer(false)}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition border border-slate-300 dark:border-slate-700 shadow-sm active:scale-95"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     {/* Live Notification Pop-up Toast */}
     {activePopup && (
       <div
         role="alert"
         aria-live="assertive"
-        className="fixed top-20 right-3 sm:right-6 z-[100] max-w-sm sm:max-w-md w-[calc(100vw-1.5rem)] bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-2xl p-4 backdrop-blur-2xl animate-bounce-short transition-all"
+        className="fixed top-20 right-3 sm:right-6 z-[105] max-w-sm sm:max-w-md w-[calc(100vw-1.5rem)] bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-2xl p-4 backdrop-blur-2xl animate-bounce-short transition-all"
       >
         {/* Tricolor accent bar */}
         <div className="absolute top-0 left-0 right-0 h-1 flex rounded-t-2xl overflow-hidden">
