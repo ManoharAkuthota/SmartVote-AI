@@ -69,7 +69,13 @@ export default function LoginPage() {
         setErrorMsg(res.data?.message || 'Authentication failed.');
       }
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Invalid email or password. Please verify your electoral credentials.');
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setErrorMsg('Authentication request timed out. Please check if the backend service is responding on port 8080.');
+      } else if (!err.response) {
+        setErrorMsg('Unable to connect to Electoral Security Server. Please verify the backend service is running on port 8080.');
+      } else {
+        setErrorMsg(err.response?.data?.message || 'Invalid email or password. Please verify your electoral credentials.');
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -1,11 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Bell, Globe, Sun, Moon, Volume2, VolumeX, LogOut, User, CheckCircle, AlertTriangle, Menu, X, ChevronRight, Vote, ShieldCheck, LayoutDashboard, PanelLeft } from 'lucide-react';
+import { Shield, Bell, Globe, Sun, Moon, Volume2, VolumeX, LogOut, User, CheckCircle, AlertTriangle, Menu, X, ChevronRight, Vote, ShieldCheck, LayoutDashboard, PanelLeft, Sparkles, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage, SUPPORTED_LANGUAGES } from '../context/LanguageContext';
 import { useSidebar } from '../context/SidebarContext';
 import api from '../services/api';
+
+const DEFAULT_PUBLIC_NOTICES = [
+  {
+    id: 'pub-1',
+    title: '18th Lok Sabha General Elections 2026',
+    message: 'Polling stations and secret digital ballots are active under Article 324 of the Constitution of India.',
+    createdAt: new Date().toISOString(),
+    read: false,
+    type: 'INFO'
+  },
+  {
+    id: 'pub-2',
+    title: 'Voter Roll Verification & Form 6 Active',
+    message: 'New voters aged 18+ can apply for digital electoral roll enrollment with instant Aadhaar verification.',
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    read: false,
+    type: 'SUCCESS'
+  },
+  {
+    id: 'pub-3',
+    title: 'National Voter Helpline Toll-Free 1950',
+    message: 'Official bilingual 24x7 voter assistance and grievance portal is operational across all constituencies.',
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+    read: true,
+    type: 'INFO'
+  }
+];
 
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -23,10 +50,14 @@ export default function Navbar() {
     }
   };
 
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(DEFAULT_PUBLIC_NOTICES);
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(2);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [activePopup, setActivePopup] = useState(null);
+
+  const prevNotifIdsRef = useRef(new Set(DEFAULT_PUBLIC_NOTICES.map((n) => n.id)));
+  const initialPopupFiredRef = useRef(false);
 
   // Close extra drawers on route change
   useEffect(() => {
@@ -34,21 +65,76 @@ export default function Navbar() {
     setLangDropdownOpen(false);
   }, [location.pathname]);
 
+  // Fetch notifications periodically
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 20000);
-      return () => clearInterval(interval);
-    }
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000);
+    return () => clearInterval(interval);
   }, [isAuthenticated]);
+
+  // Demo initial pop-up after 3.5 seconds to show live functionality
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!initialPopupFiredRef.current) {
+        initialPopupFiredRef.current = true;
+        triggerNotificationPopup({
+          id: 'welcome-popup',
+          title: 'Electoral Security Alert',
+          message: 'SmartVote Bharat portal is operational under Article 324. AI facial security & OTP verification active.',
+          createdAt: new Date().toISOString(),
+          read: false
+        });
+      }
+    }, 3500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Escape key closes notification drawer & pop-up
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowNotifDrawer(false);
+        setActivePopup(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const triggerNotificationPopup = (notif) => {
+    setActivePopup(notif);
+    if (voiceEnabled) {
+      speak('New alert: ' + notif.title);
+    }
+    // Auto-dismiss after 8 seconds
+    setTimeout(() => {
+      setActivePopup((curr) => (curr?.id === notif.id ? null : curr));
+    }, 8000);
+  };
 
   const fetchNotifications = async () => {
     try {
-      const res = await api.get('/notifications');
-      if (res.data?.success) {
-        setNotifications(res.data.data);
-        setUnreadCount(res.data.data.filter((n) => !n.read).length);
+      if (isAuthenticated) {
+        const res = await api.get('/notifications');
+        if (res.data?.success && res.data.data.length > 0) {
+          const fetched = res.data.data;
+          
+          // Check for brand new unread notifications to trigger pop-up
+          fetched.forEach((n) => {
+            if (!prevNotifIdsRef.current.has(n.id) && !n.read) {
+              triggerNotificationPopup(n);
+            }
+          });
+
+          prevNotifIdsRef.current = new Set(fetched.map((n) => n.id));
+          setNotifications(fetched);
+          setUnreadCount(fetched.filter((n) => !n.read).length);
+          return;
+        }
       }
+      // If not authenticated or backend returned empty list, maintain public notices
+      setNotifications((prev) => (prev.length > 0 ? prev : DEFAULT_PUBLIC_NOTICES));
+      setUnreadCount((prev) => notifications.filter((n) => !n.read).length);
     } catch (e) {
       console.warn('Could not fetch notifications:', e.message);
     }
@@ -56,12 +142,42 @@ export default function Navbar() {
 
   const markNotificationRead = async (id) => {
     try {
-      await api.patch(`/notifications/${id}/read`);
+      if (typeof id === 'number' && isAuthenticated) {
+        await api.patch(`/notifications/${id}/read`).catch(() => {});
+      }
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
       setUnreadCount((c) => Math.max(0, c - 1));
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const markAllNotificationsRead = async () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+    if (isAuthenticated) {
+      notifications.forEach((n) => {
+        if (!n.read && typeof n.id === 'number') {
+          api.patch(`/notifications/${n.id}/read`).catch(() => {});
+        }
+      });
+    }
+  };
+
+  const handleSimulateAlert = () => {
+    const alertId = 'sim-' + Date.now();
+    const newAlert = {
+      id: alertId,
+      title: 'Real-Time Electoral Roll Notice',
+      message: 'Constituency polling roster updated by Chief Election Returning Officer.',
+      createdAt: new Date().toISOString(),
+      read: false,
+      type: 'INFO'
+    };
+    setNotifications((prev) => [newAlert, ...prev]);
+    setUnreadCount((c) => c + 1);
+    prevNotifIdsRef.current.add(alertId);
+    triggerNotificationPopup(newAlert);
   };
 
   const handleLogout = () => {
@@ -72,7 +188,8 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/95 dark:bg-slate-950/90 border-b border-slate-200 dark:border-orange-500/20 shadow-sm dark:shadow-lg transition-colors">
+    <>
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-white/95 dark:bg-slate-950/90 border-b border-slate-200 dark:border-orange-500/20 shadow-sm dark:shadow-lg transition-colors">
       {/* Subtle National Tricolor Accent Top Stripe */}
       <div className="h-1 w-full flex">
         <div className="h-full flex-1 bg-amber-500" />
@@ -225,58 +342,133 @@ export default function Navbar() {
               {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </button>
 
-            {/* Notifications (if authenticated) */}
-            {isAuthenticated && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowNotifDrawer(!showNotifDrawer)}
-                  className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition relative"
-                  title="Notifications"
-                >
-                  <Bell className="w-4 h-4" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-slate-950 font-bold text-[10px] rounded-full flex items-center justify-center animate-pulse">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
+            {/* Electoral Notifications Bell & Drawer */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifDrawer(!showNotifDrawer)}
+                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition relative"
+                title={`Notifications (${unreadCount} unread)`}
+                aria-label={`Notifications (${unreadCount} unread)`}
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-amber-500 text-slate-950 font-bold text-[10px] rounded-full flex items-center justify-center animate-pulse shadow-sm">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </button>
 
-                {/* Notifications Dropdown */}
-                {showNotifDrawer && (
-                  <div className="absolute right-0 mt-3 w-72 sm:w-88 bg-slate-900/95 border border-amber-500/30 rounded-2xl shadow-2xl p-3 sm:p-4 z-50 backdrop-blur-2xl">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2 sm:mb-3">
-                      <h4 className="text-xs sm:text-sm font-semibold text-white flex items-center gap-2">
-                        <Bell className="w-4 h-4 text-amber-400" /> Electoral Alerts
-                      </h4>
-                      <span className="text-[10px] sm:text-xs text-slate-400">{notifications.length} notices</span>
+              {/* Notifications Dropdown / Small Modal Screen */}
+              {showNotifDrawer && (
+                <>
+                  {/* Backdrop overlay to cancel/close on outside click */}
+                  <div
+                    className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1px]"
+                    onClick={() => setShowNotifDrawer(false)}
+                    aria-hidden="true"
+                  />
+
+                  <div className="fixed sm:absolute right-2 sm:right-0 top-18 sm:top-full mt-2 w-[calc(100vw-1rem)] sm:w-96 max-w-sm sm:max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-amber-500/30 rounded-2xl shadow-2xl p-3.5 sm:p-4 z-50 backdrop-blur-2xl transition-all">
+                    {/* Header with Title, Count Badges, and Cancel/Close Button */}
+                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2.5 mb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                          <Bell className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                            Electoral Alerts
+                          </h4>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300">
+                              {unreadCount} Unread
+                            </span>
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                              • {notifications.length} Total
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Header Cancel / Close Button */}
+                      <button
+                        onClick={() => setShowNotifDrawer(false)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition"
+                        title="Cancel / Close notifications"
+                        aria-label="Cancel and close notifications"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
-                    <div className="max-h-60 sm:max-h-72 overflow-y-auto space-y-2">
+
+                    {/* Notification Items List */}
+                    <div className="max-h-64 sm:max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                       {notifications.length === 0 ? (
-                        <p className="text-xs text-slate-400 text-center py-4">No electoral notifications yet</p>
+                        <div className="text-center py-6 text-slate-400 text-xs">
+                          No electoral notifications at this time.
+                        </div>
                       ) : (
                         notifications.map((n) => (
                           <div
                             key={n.id}
                             onClick={() => markNotificationRead(n.id)}
-                            className={`p-2 sm:p-2.5 rounded-xl border text-xs cursor-pointer transition ${
+                            className={`p-2.5 rounded-xl border text-xs cursor-pointer transition relative group ${
                               n.read
-                                ? 'bg-slate-800/40 border-slate-700/40 text-slate-400'
-                                : 'bg-amber-950/30 border-amber-500/30 text-slate-200 hover:border-amber-400'
+                                ? 'bg-slate-50 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                : 'bg-amber-500/10 dark:bg-amber-950/40 border-amber-500/40 text-slate-900 dark:text-slate-100 hover:border-amber-500'
                             }`}
                           >
-                            <div className="font-semibold text-amber-300 mb-0.5 text-[11px] sm:text-xs">{n.title}</div>
-                            <p className="text-slate-300 text-[10px] sm:text-[11px] leading-relaxed">{n.message}</p>
-                            <span className="text-[8px] sm:text-[9px] text-slate-500 block mt-1 font-mono">
-                              {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST
-                            </span>
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <span className="font-bold text-amber-700 dark:text-amber-300 text-xs flex items-center gap-1.5">
+                                {!n.read && (
+                                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                                )}
+                                {n.title}
+                              </span>
+                              <span className="text-[9px] text-slate-500 dark:text-slate-400 whitespace-nowrap font-mono shrink-0">
+                                {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} IST
+                              </span>
+                            </div>
+                            <p className="text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
+                              {n.message}
+                            </p>
                           </div>
                         ))
                       )}
                     </div>
+
+                    {/* Footer Actions: Mark all read + Cancel button */}
+                    <div className="flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-2.5 mt-2.5">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={markAllNotificationsRead}
+                          disabled={unreadCount === 0}
+                          className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-40 disabled:hover:no-underline"
+                        >
+                          Mark all read
+                        </button>
+                        <span className="text-slate-300 dark:text-slate-700">•</span>
+                        <button
+                          onClick={handleSimulateAlert}
+                          className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                          title="Simulate receiving a new live notification"
+                        >
+                          + Test Alert
+                        </button>
+                      </div>
+
+                      {/* Explicit Cancel Button */}
+                      <button
+                        onClick={() => setShowNotifDrawer(false)}
+                        className="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition border border-slate-300 dark:border-slate-700 shadow-sm"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+                </>
+              )}
+            </div>
 
             {/* Mobile Navigation Drawer Toggle */}
             <button
@@ -339,5 +531,73 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+
+    {/* Live Notification Pop-up Toast */}
+    {activePopup && (
+      <div
+        role="alert"
+        aria-live="assertive"
+        className="fixed top-20 right-3 sm:right-6 z-[100] max-w-sm sm:max-w-md w-[calc(100vw-1.5rem)] bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-2xl shadow-2xl p-4 backdrop-blur-2xl animate-bounce-short transition-all"
+      >
+        {/* Tricolor accent bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 flex rounded-t-2xl overflow-hidden">
+          <div className="h-full flex-1 bg-amber-500" />
+          <div className="h-full flex-1 bg-white" />
+          <div className="h-full flex-1 bg-emerald-600" />
+        </div>
+
+        <div className="flex items-start gap-3 mt-1">
+          <div className="p-2 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse">
+            <Bell className="w-5 h-5" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
+                New Electoral Alert
+              </span>
+              <span className="text-[10px] font-mono text-slate-500">Just now</span>
+            </div>
+
+            <h5 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm mt-1 leading-snug">
+              {activePopup.title}
+            </h5>
+
+            <p className="text-slate-600 dark:text-slate-300 text-[11px] sm:text-xs mt-1 leading-relaxed line-clamp-2">
+              {activePopup.message}
+            </p>
+
+            <div className="flex items-center justify-end gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <button
+                onClick={() => {
+                  setShowNotifDrawer(true);
+                  markNotificationRead(activePopup.id);
+                  setActivePopup(null);
+                }}
+                className="px-2.5 py-1 rounded-lg text-xs font-bold text-white bg-amber-600 hover:bg-amber-500 transition shadow-sm"
+              >
+                View in Notices
+              </button>
+              <button
+                onClick={() => setActivePopup(null)}
+                className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition border border-slate-200 dark:border-slate-700"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setActivePopup(null)}
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition -mr-1 -mt-1"
+            aria-label="Cancel notification popup"
+            title="Cancel / Dismiss"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    )}
+  </>
   );
 }

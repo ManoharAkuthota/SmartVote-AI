@@ -136,7 +136,7 @@ export async function detectFaceWithLiveness(videoEl) {
   };
 }
 
-export const detectFaceWithBiometrics = detectFaceWithLiveness;
+export const detectFaceWithFacialSecurity = detectFaceWithLiveness;
 
 /**
  * Generates a mock 128-d embedding for offline/fallback demo testing.

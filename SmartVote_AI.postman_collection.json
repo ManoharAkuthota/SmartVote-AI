@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "smartvote-ai-api-v1",
     "name": "SmartVote AI - Cryptographic Online Voting System",
-    "description": "Production REST API collection for SmartVote AI: multi-factor biometric authentication, election management, cryptographic ballot sealing, and administrative governance.",
+    "description": "Production REST API collection for SmartVote AI: multi-factor AI facial security authentication, election management, cryptographic ballot sealing, and administrative governance.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -13,7 +13,7 @@
   ],
   "item": [
     {
-      "name": "1. Authentication & Biometrics",
+      "name": "1. Authentication & Facial Security",
       "item": [
         {
           "name": "1.1 Register Digital Identity",
