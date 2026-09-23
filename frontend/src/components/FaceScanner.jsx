@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Camera, RefreshCw, CheckCircle2, AlertCircle, Eye, CornerDownRight, SunMedium, ShieldCheck, VideoOff, Sparkles, Check } from 'lucide-react';
+import { Camera, RefreshCw, CheckCircle2, AlertCircle, Eye, CornerDownRight, SunMedium, ShieldCheck, VideoOff, Sparkles, Check, MoveHorizontal } from 'lucide-react';
 import { loadFaceApiModels, detectFaceWithLiveness, checkLightingQuality, generateMockEmbedding } from '../services/faceApiLoader';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -22,12 +22,18 @@ export default function FaceScanner({
   const [cameraError, setCameraError] = useState(null);
   const [lightingLevel, setLightingLevel] = useState(95);
 
-  // Liveness & detection states
+  // Active Liveness Stages: 'ALIGN' -> 'BLINK' -> 'HEAD_TURN' -> 'VERIFIED'
+  const [livenessStage, setLivenessStage] = useState(requireLiveness ? 'ALIGN' : 'VERIFIED');
   const [faceDetected, setFaceDetected] = useState(false);
   const [blinkPassed, setBlinkPassed] = useState(!requireLiveness);
   const [headTurnPassed, setHeadTurnPassed] = useState(!requireLiveness);
   const [multipleFacesAlert, setMultipleFacesAlert] = useState(false);
   const [confidenceScore, setConfidenceScore] = useState(0);
+
+  // Stateful liveness tracking refs across render ticks
+  const blinkStateRef = useRef({ sawClosed: false, closedTimestamp: 0 });
+  const headTurnStateRef = useRef({ initialRatio: null });
+  const autoCaptureTriggeredRef = useRef(false);
 
   const [completed, setCompleted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -77,19 +83,25 @@ export default function FaceScanner({
     };
   }, [simulatedMode]);
 
-  // Reset camera when retrying
+  // Reset camera and all challenge trackers when retrying
   const handleResetCamera = () => {
     setCompleted(false);
     setIsProcessing(false);
     setCapturedPhotoPreview(null);
     latestDescriptorRef.current = null;
     setCameraError(null);
+    autoCaptureTriggeredRef.current = false;
+    blinkStateRef.current = { sawClosed: false, closedTimestamp: 0 };
+    headTurnStateRef.current = { initialRatio: null };
+    setBlinkPassed(!requireLiveness);
+    setHeadTurnPassed(!requireLiveness);
+    setLivenessStage(requireLiveness ? 'ALIGN' : 'VERIFIED');
     if (onReset) {
       onReset();
     }
   };
 
-  // Automated background detection loop
+  // Perform Real-Time Active Anti-Spoofing & Liveness Detection
   useEffect(() => {
     if (!streamActive || completed || simulatedMode) return;
 
@@ -136,19 +148,63 @@ export default function FaceScanner({
             const ctx = canvasRef.current.getContext('2d');
             ctx.clearRect(0, 0, displaySize.width, displaySize.height);
 
-            // Subtle official frame box
             const box = res.box;
-            ctx.strokeStyle = '#2563eb';
+            ctx.strokeStyle = (blinkPassed && headTurnPassed) ? '#10b981' : '#2563eb';
             ctx.lineWidth = 2;
             ctx.strokeRect(box.x, box.y, box.width, box.height);
           }
 
-          if (!blinkPassed && res.isBlinking) {
-            setBlinkPassed(true);
+          if (!requireLiveness) {
+            return;
           }
 
-          if (blinkPassed && !headTurnPassed && res.isTurnedRight) {
-            setHeadTurnPassed(true);
+          // STAGE 1: ALIGNMENT -> BLINK CHALLENGE
+          if (livenessStage === 'ALIGN' && res.isFacingCenter) {
+            setLivenessStage('BLINK');
+            if (voiceEnabled) speak("Face detected. Please blink your eyes naturally.");
+            return;
+          }
+
+          // STAGE 2: EYE-BLINK CHALLENGE
+          if (livenessStage === 'BLINK' && !blinkPassed) {
+            // Track transition: OPEN -> CLOSED -> OPEN
+            if (res.eyesClosed) {
+              blinkStateRef.current.sawClosed = true;
+              blinkStateRef.current.closedTimestamp = Date.now();
+            } else if (blinkStateRef.current.sawClosed && res.eyesOpen) {
+              const duration = Date.now() - blinkStateRef.current.closedTimestamp;
+              // Genuine human blink takes between 80ms and 1800ms
+              if (duration < 2500) {
+                setBlinkPassed(true);
+                headTurnStateRef.current.initialRatio = res.headTurnRatio || 1.0;
+                setLivenessStage('HEAD_TURN');
+                if (voiceEnabled) speak("Blink verified. Please turn your head slightly.");
+              }
+            }
+            return;
+          }
+
+          // STAGE 3: HEAD MOVEMENT / 3D YAW CHALLENGE
+          if (livenessStage === 'HEAD_TURN' && blinkPassed && !headTurnPassed) {
+            const initial = headTurnStateRef.current.initialRatio || 1.0;
+            const current = res.headTurnRatio || 1.0;
+            const yawDelta = Math.abs(current - initial);
+
+            // Valid 3D head movement: turned left, turned right, or yaw difference > 0.18
+            if (res.isTurnedRight || res.isTurnedLeft || yawDelta > 0.18) {
+              setHeadTurnPassed(true);
+              setLivenessStage('VERIFIED');
+              if (voiceEnabled) speak("Liveness confirmed. Real citizen verified.");
+            }
+            return;
+          }
+
+          // STAGE 4: ALL LIVENESS CHALLENGES PASSED! AUTO-CAPTURE IDENTITY
+          if (livenessStage === 'VERIFIED' && blinkPassed && headTurnPassed && !autoCaptureTriggeredRef.current && !completed) {
+            autoCaptureTriggeredRef.current = true;
+            setTimeout(() => {
+              handleQuickPhotoCapture();
+            }, 450);
           }
         }
       } catch (err) {
@@ -156,18 +212,24 @@ export default function FaceScanner({
       }
     };
 
-    intervalId = setInterval(runDetection, 250);
+    intervalId = setInterval(runDetection, 200);
     return () => clearInterval(intervalId);
-  }, [streamActive, completed, blinkPassed, headTurnPassed, simulatedMode]);
+  }, [streamActive, completed, livenessStage, blinkPassed, headTurnPassed, simulatedMode, requireLiveness]);
 
-  // QUICK PHOTO CAPTURE (Strict Real Face Snapshot)
+  // CAPTURE VERIFIED PHOTO & SUBMIT BIOMETRIC DESCRIPTOR
   const handleQuickPhotoCapture = async () => {
     if (isProcessing || completed || isVerifying) return;
+
+    // STRICT ANTI-SPOOFING ENFORCEMENT:
+    if (requireLiveness && (!blinkPassed || !headTurnPassed)) {
+      setCameraError("Anti-Spoofing Challenge Incomplete: Please blink your eyes and turn your head slightly to prove physical human presence.");
+      return;
+    }
 
     let descriptor = latestDescriptorRef.current;
     let score = latestScoreRef.current;
 
-    // If descriptor is not already cached, attempt an immediate direct scan
+    // If descriptor is not cached yet, perform direct scan
     if (!descriptor && videoRef.current && videoRef.current.readyState >= 2) {
       setIsProcessing(true);
       try {
@@ -182,16 +244,15 @@ export default function FaceScanner({
       }
     }
 
-    // STRICT VALIDATION: Refuse to submit without a real detected face
     if (!descriptor) {
       setIsProcessing(false);
-      setCameraError("No face detected! Please position your face inside the oval guide and ensure good lighting.");
+      setCameraError("No face detected! Please position your face inside the oval guide.");
       return;
     }
 
     setIsProcessing(true);
 
-    // Capture snapshot image from video stream
+    // Capture snapshot image from active video stream
     let faceImageUrl = '';
     if (videoRef.current && videoRef.current.videoWidth > 0) {
       const offCanvas = document.createElement('canvas');
@@ -214,7 +275,7 @@ export default function FaceScanner({
     setHeadTurnPassed(true);
     setCompleted(true);
 
-    if (voiceEnabled) speak("Photo captured. Verifying facial security identity.");
+    if (voiceEnabled) speak("Photo captured. Authenticating live citizen against database photo.");
 
     setTimeout(() => {
       onSuccess({
@@ -234,6 +295,7 @@ export default function FaceScanner({
     setFaceDetected(true);
     setBlinkPassed(true);
     setHeadTurnPassed(true);
+    setLivenessStage('VERIFIED');
     setConfidenceScore(99);
 
     const mockDescriptor = generateMockEmbedding('voter_simulation_seed');
@@ -285,28 +347,48 @@ export default function FaceScanner({
           className="absolute inset-0 w-full h-full pointer-events-none z-20 scale-x-[-1]"
         />
 
-        {/* Official Passport / ID Oval Face Guide */}
+        {/* Interactive Anti-Spoofing Oval Face Guide */}
         {!completed && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
             <div className={`w-52 h-64 sm:w-60 sm:h-72 rounded-full border-2 ${
               externalError
-                ? 'border-rose-500 shadow-[0_0_25px_rgba(244,63,94,0.35)]'
+                ? 'border-rose-500 shadow-[0_0_30px_rgba(244,63,94,0.45)]'
+                : livenessStage === 'VERIFIED'
+                ? 'border-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.5)] animate-pulse'
+                : livenessStage === 'HEAD_TURN'
+                ? 'border-cyan-400 shadow-[0_0_25px_rgba(6,182,212,0.4)]'
+                : livenessStage === 'BLINK'
+                ? 'border-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.4)] animate-pulse'
                 : faceDetected
-                ? 'border-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.35)]'
+                ? 'border-blue-400 shadow-[0_0_25px_rgba(59,130,246,0.35)]'
                 : 'border-blue-500/70 border-dashed'
             } transition-all duration-300 flex items-end justify-center pb-4`}>
-              <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-md ${
+              <span className={`text-[10px] font-semibold px-3 py-1 rounded-full backdrop-blur-md shadow-md flex items-center gap-1.5 ${
                 externalError
-                  ? 'bg-rose-950/90 text-rose-300 border border-rose-500/60'
+                  ? 'bg-rose-950/95 text-rose-300 border border-rose-500/60'
+                  : livenessStage === 'VERIFIED'
+                  ? 'bg-emerald-950/95 text-emerald-300 border border-emerald-500/70'
+                  : livenessStage === 'HEAD_TURN'
+                  ? 'bg-cyan-950/95 text-cyan-300 border border-cyan-500/70'
+                  : livenessStage === 'BLINK'
+                  ? 'bg-amber-950/95 text-amber-300 border border-amber-500/70'
                   : faceDetected
-                  ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/60'
-                  : 'bg-slate-900/85 text-slate-300 border border-slate-700'
+                  ? 'bg-blue-950/95 text-blue-300 border border-blue-500/70'
+                  : 'bg-slate-900/90 text-slate-300 border border-slate-700'
               }`}>
-                {externalError
-                  ? "⚠️ Face Mismatch - Adjust Angle"
-                  : faceDetected
-                  ? "✅ Face Positioned & Locked"
-                  : "Position Face Inside Oval"}
+                {externalError ? (
+                  <>⚠️ Face Mismatch - Retrying</>
+                ) : livenessStage === 'VERIFIED' ? (
+                  <>🛡️ Liveness Confirmed • Capturing</>
+                ) : livenessStage === 'HEAD_TURN' ? (
+                  <>↔️ Challenge 2: Turn Head Slightly</>
+                ) : livenessStage === 'BLINK' ? (
+                  <>👁️ Challenge 1: Please Blink Eyes</>
+                ) : faceDetected ? (
+                  <>✅ Face Centered • Starting Liveness</>
+                ) : (
+                  <>Center Face Inside Oval</>
+                )}
               </span>
             </div>
           </div>
@@ -314,28 +396,79 @@ export default function FaceScanner({
 
         {/* Top Header Bar */}
         <div className="absolute top-3 inset-x-3 flex items-center justify-between z-30 pointer-events-none">
-          <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-900/85 border border-slate-700 text-xs font-medium text-slate-200 backdrop-blur-md">
+          <div className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-700 text-xs font-medium text-slate-200 backdrop-blur-md shadow-sm">
             <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-            <span>Facial Security Verification</span>
+            <span className="font-mono text-[11px]">ANTI-SPOOFING • ACTIVE LIVENESS</span>
           </div>
 
-          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900/85 border border-slate-700 text-xs text-slate-300 backdrop-blur-md">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900/90 border border-slate-700 text-xs text-slate-300 backdrop-blur-md shadow-sm">
             <SunMedium className={`w-3.5 h-3.5 ${lightingLevel < 40 ? 'text-amber-400' : 'text-emerald-400'}`} />
             <span>Lighting: {lightingLevel > 50 ? 'Good' : 'Low'}</span>
           </div>
         </div>
 
+        {/* Real-Time Live Challenge HUD Banner */}
+        {!completed && !simulatedMode && (
+          <div className="absolute top-12 inset-x-4 z-30 pointer-events-none flex justify-center">
+            <div className="px-3.5 py-1.5 rounded-full bg-slate-950/90 border border-slate-700 backdrop-blur-md flex items-center space-x-3 shadow-lg">
+              {/* Step 1: Position */}
+              <div className={`flex items-center space-x-1 text-[10px] font-mono ${
+                faceDetected ? 'text-emerald-400 font-bold' : 'text-slate-400'
+              }`}>
+                {faceDetected ? <Check className="w-3 h-3 text-emerald-400" /> : <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />}
+                <span>1. Position</span>
+              </div>
+
+              <span className="text-slate-600 text-xs">•</span>
+
+              {/* Step 2: Blink */}
+              <div className={`flex items-center space-x-1 text-[10px] font-mono ${
+                blinkPassed
+                  ? 'text-emerald-400 font-bold'
+                  : livenessStage === 'BLINK'
+                  ? 'text-amber-400 font-bold animate-pulse'
+                  : 'text-slate-500'
+              }`}>
+                {blinkPassed ? (
+                  <Check className="w-3 h-3 text-emerald-400" />
+                ) : (
+                  <Eye className="w-3 h-3 text-amber-400" />
+                )}
+                <span>2. Blink</span>
+              </div>
+
+              <span className="text-slate-600 text-xs">•</span>
+
+              {/* Step 3: Head Turn */}
+              <div className={`flex items-center space-x-1 text-[10px] font-mono ${
+                headTurnPassed
+                  ? 'text-emerald-400 font-bold'
+                  : livenessStage === 'HEAD_TURN'
+                  ? 'text-cyan-400 font-bold animate-pulse'
+                  : 'text-slate-500'
+              }`}>
+                {headTurnPassed ? (
+                  <Check className="w-3 h-3 text-emerald-400" />
+                ) : (
+                  <MoveHorizontal className="w-3 h-3 text-cyan-400" />
+                )}
+                <span>3. Movement</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Multiple Faces Alert */}
         {multipleFacesAlert && (
-          <div className="absolute inset-x-4 top-14 p-2.5 bg-rose-950/90 border border-rose-500 rounded-xl flex items-center space-x-2 text-rose-200 text-xs z-40 backdrop-blur-md">
+          <div className="absolute inset-x-4 top-16 p-2.5 bg-rose-950/90 border border-rose-500 rounded-xl flex items-center space-x-2 text-rose-200 text-xs z-40 backdrop-blur-md">
             <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-            <span>Multiple faces detected. Ensure only 1 person is in front of the camera.</span>
+            <span>Multiple faces detected. Ensure only 1 citizen is in front of the camera.</span>
           </div>
         )}
 
         {/* Camera Warning / Error Alert */}
         {cameraError && !simulatedMode && (
-          <div className="absolute inset-x-4 top-14 p-2.5 bg-rose-950/95 border border-rose-500 rounded-xl flex items-center justify-between text-rose-200 text-xs z-40 backdrop-blur-md shadow-lg">
+          <div className="absolute inset-x-4 top-16 p-2.5 bg-rose-950/95 border border-rose-500 rounded-xl flex items-center justify-between text-rose-200 text-xs z-40 backdrop-blur-md shadow-lg">
             <div className="flex items-center space-x-2">
               <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
               <span>{cameraError}</span>
@@ -357,7 +490,7 @@ export default function FaceScanner({
               <RefreshCw className="w-6 h-6 text-blue-400 animate-spin" />
             </div>
             <h3 className="text-sm font-bold text-white">Verifying Facial Security Profile</h3>
-            <p className="text-xs text-slate-300 mt-1">Authenticating against cryptographic ledger record...</p>
+            <p className="text-xs text-slate-300 mt-1">Comparing live camera scan against enrolled database photo...</p>
           </div>
         )}
       </div>
@@ -372,7 +505,7 @@ export default function FaceScanner({
             className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm shadow-md flex items-center justify-center space-x-2 transition transform active:scale-98 cursor-pointer ring-2 ring-blue-400/40"
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Retake Photo & Try Again</span>
+            <span>Retake Verification & Try Again</span>
           </button>
         ) : isVerifying ? (
           <button
@@ -381,26 +514,30 @@ export default function FaceScanner({
             className="w-full py-3.5 px-6 rounded-xl bg-blue-600/70 text-white font-bold text-sm shadow flex items-center justify-center space-x-2 cursor-wait"
           >
             <RefreshCw className="w-4 h-4 animate-spin" />
-            <span>Verifying Identity...</span>
+            <span>Verifying with Database Photo...</span>
           </button>
         ) : !simulatedMode ? (
           <button
             type="button"
             onClick={handleQuickPhotoCapture}
-            disabled={isProcessing || (!faceDetected && !completed)}
-            className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm shadow-md flex items-center justify-center space-x-2.5 transition transform active:scale-98 cursor-pointer ${
-              faceDetected
-                ? 'bg-blue-600 hover:bg-blue-700 text-white ring-2 ring-blue-400/40 shadow-blue-500/20'
-                : 'bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed opacity-80'
+            disabled={isProcessing || !blinkPassed || !headTurnPassed}
+            className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm shadow-md flex items-center justify-center space-x-2.5 transition transform active:scale-98 ${
+              blinkPassed && headTurnPassed
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white ring-2 ring-emerald-400/50 shadow-emerald-500/20 cursor-pointer animate-pulse'
+                : 'bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed opacity-90'
             }`}
           >
             <Camera className="w-5 h-5" />
             <span>
               {isProcessing
                 ? "Processing Snapshot..."
-                : faceDetected
-                ? "📸 Take Photo Now"
-                : "📸 Center Face in Oval to Capture"}
+                : blinkPassed && headTurnPassed
+                ? "📸 Capture Verified Identity"
+                : livenessStage === 'HEAD_TURN'
+                ? "↔️ Turn Head Slightly to Unlock Capture"
+                : livenessStage === 'BLINK'
+                ? "👁️ Blink Eyes to Unlock Capture"
+                : "Center Face in Oval to Start Liveness"}
             </span>
           </button>
         ) : (
@@ -430,24 +567,18 @@ export default function FaceScanner({
             blinkPassed ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-400' : 'bg-slate-900 border-slate-800 text-slate-400'
           }`}>
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
-              {blinkPassed && <Check className="w-3 h-3" />} Liveness
+              {blinkPassed && <Check className="w-3 h-3" />} Blink
             </div>
-            <div className="text-[10px] opacity-80">{blinkPassed ? 'Active' : 'Blink / Turn'}</div>
+            <div className="text-[10px] opacity-80">{blinkPassed ? 'Verified' : 'Blink Eyes'}</div>
           </div>
 
           <div className={`p-2 rounded-lg border text-center transition ${
-            externalError
-              ? 'bg-rose-950/30 border-rose-500/40 text-rose-400'
-              : completed && !externalError
-              ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-400'
-              : 'bg-slate-900 border-slate-800 text-slate-400'
+            headTurnPassed ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-400' : 'bg-slate-900 border-slate-800 text-slate-400'
           }`}>
             <div className="font-semibold text-[11px] flex items-center justify-center gap-1">
-              {completed && !externalError && <Check className="w-3 h-3" />} Face Security
+              {headTurnPassed && <Check className="w-3 h-3" />} 3D Movement
             </div>
-            <div className="text-[10px] opacity-80">
-              {externalError ? 'Retry Needed' : completed ? 'Captured' : 'Ready'}
-            </div>
+            <div className="text-[10px] opacity-80">{headTurnPassed ? 'Verified' : 'Turn Head'}</div>
           </div>
         </div>
 
@@ -456,12 +587,12 @@ export default function FaceScanner({
           <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300 text-left space-y-1">
             <div className="flex items-center space-x-1.5 font-semibold text-blue-400 text-[11px]">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Tips for accurate facial matching:</span>
+              <span>Tips for accurate facial verification:</span>
             </div>
             <ul className="text-[11px] text-slate-400 space-y-0.5 list-disc list-inside">
               <li>Ensure good front lighting on your face (avoid strong window backlighting)</li>
               <li>Hold your camera straight at eye level</li>
-              <li>Remove glasses or hats if you enrolled without them</li>
+              <li>Complete the natural eye blink and slight head turn challenges</li>
             </ul>
           </div>
         )}

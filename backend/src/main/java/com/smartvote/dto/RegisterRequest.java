@@ -32,6 +32,12 @@ public class RegisterRequest {
 
     private Double qualityScore;
 
+    private Boolean livenessPassed;
+
+    private Boolean blinkDetected;
+
+    private Boolean headTurnDetected;
+
     public RegisterRequest() {
     }
 
@@ -105,5 +111,29 @@ public class RegisterRequest {
 
     public void setQualityScore(Double qualityScore) {
         this.qualityScore = qualityScore;
+    }
+
+    public Boolean getLivenessPassed() {
+        return livenessPassed;
+    }
+
+    public void setLivenessPassed(Boolean livenessPassed) {
+        this.livenessPassed = livenessPassed;
+    }
+
+    public Boolean getBlinkDetected() {
+        return blinkDetected;
+    }
+
+    public void setBlinkDetected(Boolean blinkDetected) {
+        this.blinkDetected = blinkDetected;
+    }
+
+    public Boolean getHeadTurnDetected() {
+        return headTurnDetected;
+    }
+
+    public void setHeadTurnDetected(Boolean headTurnDetected) {
+        this.headTurnDetected = headTurnDetected;
     }
 }

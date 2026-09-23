@@ -84,8 +84,12 @@ public class AuthService {
             throw new BadRequestException("An account with email " + cleanEmail + " already exists");
         }
 
-        // Enforce Unique Face: Check if incoming face embedding matches any existing voter in database
+        // Enforce Unique Face & Anti-Spoofing Liveness: Check face uniqueness and ensure live capture
         if (req.getFaceEmbedding() != null && !req.getFaceEmbedding().isEmpty()) {
+            if (req.getLivenessPassed() == null || !req.getLivenessPassed()) {
+                throw new BadRequestException("Facial Anti-Spoofing Violation: Photo enrollment requires verified live liveness detection (blink and head movement). Static photos or screen reproductions cannot be enrolled.");
+            }
+
             List<FaceEmbedding> allEnrolled = faceEmbeddingRepository.findAllWithUser();
             Optional<User> duplicateUser = faceService.findMatchingUserInDatabase(req.getFaceEmbedding(), allEnrolled, null);
             if (duplicateUser.isPresent()) {
@@ -233,11 +237,23 @@ public class AuthService {
         User user = userRepository.findByEmail(cleanEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", cleanEmail));
 
-        // Liveness verification check
+        // Anti-Spoofing & Liveness verification check
         if (req.getLivenessPassed() == null || !req.getLivenessPassed()) {
             auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
-                    req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Liveness check failed (blink/head movement missing)", "Unknown");
-            throw new FaceMatchException("Facial liveness verification failed. Please ensure you blink and turn your head in front of the camera.");
+                    req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Liveness check failed (anti-spoofing not verified)", "Unknown");
+            throw new FaceMatchException("Facial Anti-Spoofing Security Error: Live human liveness (eye-blink and head movement) is strictly required. Static photos or screen reproductions are forbidden under ECI Article 324.");
+        }
+
+        if (req.getBlinkDetected() == null || !req.getBlinkDetected()) {
+            auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
+                    req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Liveness check failed (eye blink missing)", "Unknown");
+            throw new FaceMatchException("Facial Anti-Spoofing Error: Natural eye blink not detected. Please position your face and blink naturally in front of the camera.");
+        }
+
+        if (req.getHeadTurnDetected() == null || !req.getHeadTurnDetected()) {
+            auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
+                    req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Liveness check failed (head movement missing)", "Unknown");
+            throw new FaceMatchException("Facial Anti-Spoofing Error: Natural 3D head movement not detected. Please slightly turn your head to confirm physical presence.");
         }
 
         FaceEmbedding storedEmbedding = faceEmbeddingRepository.findByUserId(user.getId())

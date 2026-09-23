@@ -57,6 +57,9 @@ export default function RegisterPage() {
       faceImageUrl: capturedData.faceImageUrl,
       embedding: capturedData.embedding,
       qualityScore: capturedData.qualityScore || 0.96,
+      livenessPassed: capturedData.livenessPassed,
+      blinkDetected: capturedData.blinkDetected,
+      headTurnDetected: capturedData.headTurnDetected,
     });
     setStep(3);
   };
@@ -75,6 +78,9 @@ export default function RegisterPage() {
         maskedAadhaar: formData.maskedAadhaar,
         faceImageUrl: faceData.faceImageUrl,
         faceEmbedding: faceData.embedding,
+        livenessPassed: faceData.livenessPassed,
+        blinkDetected: faceData.blinkDetected,
+        headTurnDetected: faceData.headTurnDetected,
         deviceFingerprint: navigator.userAgent,
       };
 

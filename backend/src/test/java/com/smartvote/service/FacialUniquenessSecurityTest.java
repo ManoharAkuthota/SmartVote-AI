@@ -136,6 +136,9 @@ public class FacialUniquenessSecurityTest {
         req.setFullName("New Voter");
         req.setMobileNumber("+91-9876543210");
         req.setFaceEmbedding(personAVector);
+        req.setLivenessPassed(true);
+        req.setBlinkDetected(true);
+        req.setHeadTurnDetected(true);
 
         BadRequestException ex = assertThrows(BadRequestException.class, () -> {
             authService.register(req, "127.0.0.1", "JUnit-Agent");
@@ -143,6 +146,95 @@ public class FacialUniquenessSecurityTest {
 
         assertTrue(ex.getMessage().contains("Facial Uniqueness Violation"), "Must contain Facial Uniqueness Violation message");
         assertTrue(ex.getMessage().contains("IND-DL-1234567"), "Must mention existing user's Voter ID");
+    }
+
+    @Test
+    @DisplayName("AuthService.register: Registration with static photo or unverified liveness is rejected")
+    void testRegisterLivenessMissingRejected() {
+        when(userRepository.existsByEmail("new.voter@smartvote.ai")).thenReturn(false);
+
+        RegisterRequest req = new RegisterRequest();
+        req.setEmail("new.voter@smartvote.ai");
+        req.setPassword("Secret@123");
+        req.setFullName("New Voter");
+        req.setMobileNumber("+91-9876543210");
+        req.setFaceEmbedding(personAVector);
+        req.setLivenessPassed(false); // Static photo or bypass attempt
+
+        BadRequestException ex = assertThrows(BadRequestException.class, () -> {
+            authService.register(req, "127.0.0.1", "JUnit-Agent");
+        });
+
+        assertTrue(ex.getMessage().contains("Facial Anti-Spoofing Violation"), "Must reject static photo on registration");
+    }
+
+    @Test
+    @DisplayName("AuthService.verifyFace: Missing liveness check triggers Anti-Spoofing error")
+    void testVerifyFaceLivenessMissingRejected() {
+        User user = new User();
+        user.setId(20L);
+        user.setEmail("voter@smartvote.ai");
+        user.setFullName("Rajesh Kumar Verma");
+
+        when(userRepository.findByEmail("voter@smartvote.ai")).thenReturn(Optional.of(user));
+
+        FaceVerifyRequest req = new FaceVerifyRequest();
+        req.setEmail("voter@smartvote.ai");
+        req.setLiveEmbedding(personAVector);
+        req.setLivenessPassed(false);
+
+        FaceMatchException ex = assertThrows(FaceMatchException.class, () -> {
+            authService.verifyFace(req, "127.0.0.1", "JUnit-Agent");
+        });
+
+        assertTrue(ex.getMessage().contains("Facial Anti-Spoofing Security Error"), "Must flag missing liveness");
+    }
+
+    @Test
+    @DisplayName("AuthService.verifyFace: Missing eye blink triggers Anti-Spoofing error")
+    void testVerifyFaceBlinkMissingRejected() {
+        User user = new User();
+        user.setId(20L);
+        user.setEmail("voter@smartvote.ai");
+        user.setFullName("Rajesh Kumar Verma");
+
+        when(userRepository.findByEmail("voter@smartvote.ai")).thenReturn(Optional.of(user));
+
+        FaceVerifyRequest req = new FaceVerifyRequest();
+        req.setEmail("voter@smartvote.ai");
+        req.setLiveEmbedding(personAVector);
+        req.setLivenessPassed(true);
+        req.setBlinkDetected(false); // No blink recorded
+
+        FaceMatchException ex = assertThrows(FaceMatchException.class, () -> {
+            authService.verifyFace(req, "127.0.0.1", "JUnit-Agent");
+        });
+
+        assertTrue(ex.getMessage().contains("Natural eye blink not detected"), "Must flag missing eye blink");
+    }
+
+    @Test
+    @DisplayName("AuthService.verifyFace: Missing head movement triggers Anti-Spoofing error")
+    void testVerifyFaceHeadTurnMissingRejected() {
+        User user = new User();
+        user.setId(20L);
+        user.setEmail("voter@smartvote.ai");
+        user.setFullName("Rajesh Kumar Verma");
+
+        when(userRepository.findByEmail("voter@smartvote.ai")).thenReturn(Optional.of(user));
+
+        FaceVerifyRequest req = new FaceVerifyRequest();
+        req.setEmail("voter@smartvote.ai");
+        req.setLiveEmbedding(personAVector);
+        req.setLivenessPassed(true);
+        req.setBlinkDetected(true);
+        req.setHeadTurnDetected(false); // No head movement recorded
+
+        FaceMatchException ex = assertThrows(FaceMatchException.class, () -> {
+            authService.verifyFace(req, "127.0.0.1", "JUnit-Agent");
+        });
+
+        assertTrue(ex.getMessage().contains("Natural 3D head movement not detected"), "Must flag missing head movement");
     }
 
     @Test
@@ -165,6 +257,8 @@ public class FacialUniquenessSecurityTest {
         req.setEmail("voter@smartvote.ai");
         req.setLiveEmbedding(personBVector); // Different face from database photo
         req.setLivenessPassed(true);
+        req.setBlinkDetected(true);
+        req.setHeadTurnDetected(true);
 
         FaceMatchException ex = assertThrows(FaceMatchException.class, () -> {
             authService.verifyFace(req, "127.0.0.1", "JUnit-Agent");
@@ -201,6 +295,8 @@ public class FacialUniquenessSecurityTest {
         req.setEmail("victim@smartvote.ai");
         req.setLiveEmbedding(personBVector); // Attacker scans their face while trying to log into Victim's account!
         req.setLivenessPassed(true);
+        req.setBlinkDetected(true);
+        req.setHeadTurnDetected(true);
 
         FaceMatchException ex = assertThrows(FaceMatchException.class, () -> {
             authService.verifyFace(req, "127.0.0.1", "JUnit-Agent");
@@ -209,5 +305,36 @@ public class FacialUniquenessSecurityTest {
         assertTrue(ex.getMessage().contains("Impersonation Detected"), "Must flag impersonation alert");
         assertTrue(ex.getMessage().contains("Attacker Citizen"), "Must identify matching registered citizen");
         assertTrue(ex.getMessage().contains("IND-DL-ATTACK"), "Must specify attacker Voter ID");
+    }
+
+    @Test
+    @DisplayName("AuthService.verifyFace: Success when liveness passes and face matches database photo")
+    void testVerifyFaceSuccess() {
+        User user = new User();
+        user.setId(50L);
+        user.setEmail("voter50@smartvote.ai");
+        user.setFullName("Priya Sharma");
+        user.setMobileNumber("+91-9123456789");
+        user.setStatus(UserStatus.APPROVED);
+        user.setFailedLoginAttempts(0);
+
+        FaceEmbedding userFe = new FaceEmbedding(user, faceService.serializeEmbedding(personAVector), 0.99);
+
+        when(userRepository.findByEmail("voter50@smartvote.ai")).thenReturn(Optional.of(user));
+        when(faceEmbeddingRepository.findByUserId(50L)).thenReturn(Optional.of(userFe));
+        when(otpService.generateAndSaveOtp(eq("voter50@smartvote.ai"), any())).thenReturn("789123");
+        when(jwtService.generateTemporarySessionToken(eq("voter50@smartvote.ai"), eq("OTP_VERIFY"))).thenReturn("valid-session-jwt");
+
+        FaceVerifyRequest req = new FaceVerifyRequest();
+        req.setEmail("voter50@smartvote.ai");
+        req.setLiveEmbedding(personAVector);
+        req.setLivenessPassed(true);
+        req.setBlinkDetected(true);
+        req.setHeadTurnDetected(true);
+
+        var response = authService.verifyFace(req, "127.0.0.1", "JUnit-Agent");
+        assertNotNull(response);
+        assertEquals("OTP_VERIFY", response.getNextStep());
+        assertEquals("valid-session-jwt", response.getSessionToken());
     }
 }

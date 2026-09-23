@@ -128,9 +128,13 @@ export async function detectFaceWithLiveness(videoEl) {
     landmarks: singleDetection.landmarks,
     ear: avgEAR,
     isBlinking: avgEAR < 0.22,
+    eyesClosed: avgEAR < 0.22,
+    eyesOpen: avgEAR >= 0.25,
     headTurnRatio,
+    isFacingCenter: headTurnRatio >= 0.82 && headTurnRatio <= 1.20,
     isTurnedRight: headTurnRatio < 0.75,
     isTurnedLeft: headTurnRatio > 1.35,
+    noseTip: landmarks.positions[30],
     descriptor,
     confidence: singleDetection.detection.score
   };
