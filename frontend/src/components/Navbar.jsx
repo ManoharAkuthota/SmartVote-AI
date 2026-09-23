@@ -86,33 +86,33 @@ export default function Navbar() {
           <div className="flex items-center space-x-2 sm:space-x-3">
             <button
               onClick={handleSidebarToggle}
-              className="p-2 rounded-xl bg-slate-900/60 dark:bg-slate-900/80 border border-slate-700/60 text-slate-300 hover:text-amber-400 hover:border-amber-400/40 transition shadow-sm"
+              className="p-2 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 transition shadow-sm"
               title="Toggle Portal Sidebar"
               aria-label="Toggle Portal Sidebar"
             >
-              <PanelLeft className="w-5 h-5 text-amber-500" />
+              <PanelLeft className="w-5 h-5 text-amber-600 dark:text-amber-500" />
             </button>
 
-            <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group">
-            <div className="relative p-2 rounded-xl bg-gradient-to-br from-amber-500/20 via-blue-600/20 to-emerald-500/20 border border-amber-500/30 group-hover:border-amber-400 transition-all shadow-sm shrink-0">
-              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 group-hover:scale-105 transition-transform" />
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-1">
-                  <span>SMARTVOTE</span>
-                  <span className="text-amber-400">BHARAT</span>
-                </span>
-                <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-bold uppercase tracking-wider">
-                  ECI Verified
+            <Link to="/" className="flex items-center space-x-2 sm:space-x-2.5 group min-w-0">
+              <div className="relative p-1.5 sm:p-2 rounded-xl bg-gradient-to-br from-amber-500/20 via-blue-600/20 to-emerald-500/20 border border-amber-500/30 group-hover:border-amber-400 transition-all shadow-sm shrink-0">
+                <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 group-hover:scale-105 transition-transform" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <div className="flex items-center space-x-1 sm:space-x-1.5">
+                  <span className="text-sm sm:text-lg font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1">
+                    <span>SMARTVOTE</span>
+                    <span className="text-amber-600 dark:text-amber-400">BHARAT</span>
+                  </span>
+                  <span className="hidden xs:inline-block text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded bg-emerald-600/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-bold uppercase tracking-wider">
+                    ECI Verified
+                  </span>
+                </div>
+                <span className="text-[7px] sm:text-[9px] text-slate-500 dark:text-slate-400 tracking-wider uppercase font-medium truncate max-w-[150px] sm:max-w-none">
+                  भारत निर्वाचन • National Digital E-Voting Portal
                 </span>
               </div>
-              <span className="text-[8px] sm:text-[9px] text-slate-400 tracking-wider uppercase font-medium">
-                भारत निर्वाचन • National Digital E-Voting Portal
-              </span>
-            </div>
-          </Link>
-        </div>
+            </Link>
+          </div>
 
           {/* Center Links (Laptop & Desktop) */}
           <div className="hidden md:flex items-center space-x-1">
@@ -209,7 +209,7 @@ export default function Navbar() {
                 if (next) speak("Voice accessibility assistance activated. SmartVote Bharat official e-voting portal.");
               }}
               className={`p-2 rounded-lg border transition ${
-                voiceEnabled ? 'bg-amber-500/20 border-amber-400 text-amber-400' : 'bg-slate-900/60 border-slate-700/60 text-slate-400 hover:text-slate-200'
+                voiceEnabled ? 'bg-amber-500/20 border-amber-400 text-amber-500' : 'bg-slate-100 dark:bg-slate-900/60 border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
               }`}
               title="Voice Accessibility Reader"
             >
@@ -219,10 +219,10 @@ export default function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-amber-400 transition"
+              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition"
               title="Toggle Theme"
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-purple-600" />}
             </button>
 
             {/* Notifications (if authenticated) */}
@@ -230,7 +230,7 @@ export default function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setShowNotifDrawer(!showNotifDrawer)}
-                  className="p-2 rounded-lg bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:text-amber-400 transition relative"
+                  className="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 hover:text-amber-500 transition relative"
                   title="Notifications"
                 >
                   <Bell className="w-4 h-4" />

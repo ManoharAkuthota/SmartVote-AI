@@ -25,7 +25,7 @@ import {
   Award
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage, SUPPORTED_LANGUAGES } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useSidebar } from '../context/SidebarContext';
 
@@ -33,7 +33,7 @@ export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
-  const { t, lang, changeLanguage, SUPPORTED_LANGUAGES, speak } = useLanguage();
+  const { t, lang, changeLanguage, speak } = useLanguage();
   const { theme, toggleTheme, isDark } = useTheme();
   const {
     isMobileOpen,
@@ -278,7 +278,7 @@ export default function Sidebar() {
                   <Globe className="w-3.5 h-3.5 text-amber-500" /> भारतीय भाषाएं (7 Official Languages)
                 </span>
                 <div className="mt-2 grid grid-cols-4 gap-1.5 px-1">
-                  {SUPPORTED_LANGUAGES.map((l) => (
+                  {(SUPPORTED_LANGUAGES || []).map((l) => (
                     <button
                       key={l.code}
                       onClick={() => changeLanguage(l.code)}

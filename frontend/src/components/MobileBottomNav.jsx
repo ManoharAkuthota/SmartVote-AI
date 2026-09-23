@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Vote, ShieldCheck, User, LayoutDashboard, Shield } from 'lucide-react';
+import { Home, Vote, ShieldCheck, User, LayoutDashboard, Shield, PanelLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { useSidebar } from '../context/SidebarContext';
 
 export default function MobileBottomNav() {
   const location = useLocation();
   const { isAuthenticated, isAdmin } = useAuth();
   const { t } = useLanguage();
+  const { toggleMobileSidebar, isMobileOpen } = useSidebar();
 
   const isActive = (path) => location.pathname === path;
 
@@ -59,7 +61,7 @@ export default function MobileBottomNav() {
         {/* User Hub / Admin / Login */}
         <Link
           to={dashboardPath}
-          className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition ${
+          className={`flex flex-col items-center py-1 px-2 rounded-xl transition ${
             location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/admin') || isActive('/login')
               ? isAdmin ? 'text-purple-600 dark:text-purple-400 font-bold' : 'text-emerald-600 dark:text-emerald-400 font-bold'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
@@ -72,8 +74,22 @@ export default function MobileBottomNav() {
           }`}>
             {isAdmin ? <Shield className="w-5 h-5" /> : isAuthenticated ? <LayoutDashboard className="w-5 h-5" /> : <User className="w-5 h-5" />}
           </div>
-          <span className="text-[10px] mt-0.5 truncate max-w-[65px]">{dashboardLabel}</span>
+          <span className="text-[10px] mt-0.5 truncate max-w-[55px]">{dashboardLabel}</span>
         </Link>
+
+        {/* Sidebar / Menu Drawer Button */}
+        <button
+          onClick={toggleMobileSidebar}
+          className={`flex flex-col items-center py-1 px-2 rounded-xl transition cursor-pointer ${
+            isMobileOpen ? 'text-amber-500 dark:text-amber-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+          }`}
+          aria-label="Toggle Portal Sidebar"
+        >
+          <div className={`p-1 rounded-lg ${isMobileOpen ? 'bg-amber-500/15' : ''}`}>
+            <PanelLeft className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] mt-0.5 truncate max-w-[55px]">Sidebar</span>
+        </button>
       </div>
     </div>
   );
