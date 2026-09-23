@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -80,6 +82,20 @@ public class AuthService {
         String cleanEmail = req.getEmail().trim().toLowerCase();
         if (userRepository.existsByEmail(cleanEmail)) {
             throw new BadRequestException("An account with email " + cleanEmail + " already exists");
+        }
+
+        // Enforce Unique Face: Check if incoming face embedding matches any existing voter in database
+        if (req.getFaceEmbedding() != null && !req.getFaceEmbedding().isEmpty()) {
+            List<FaceEmbedding> allEnrolled = faceEmbeddingRepository.findAllWithUser();
+            Optional<User> duplicateUser = faceService.findMatchingUserInDatabase(req.getFaceEmbedding(), allEnrolled, null);
+            if (duplicateUser.isPresent()) {
+                User dup = duplicateUser.get();
+                String maskedEmail = maskEmail(dup.getEmail());
+                auditService.logAction(cleanEmail, Role.ROLE_VOTER.name(), "DUPLICATE_FACE_REGISTRATION_REJECTED",
+                        "User", String.valueOf(dup.getId()),
+                        "Attempted registration with face already enrolled under " + maskedEmail, ipAddress);
+                throw new BadRequestException("Facial Uniqueness Violation: This face is already enrolled on the National Electoral Roll under citizen account (" + maskedEmail + " / EPIC: " + dup.getVoterIdNumber() + "). Under Election Commission of India guidelines, each citizen is strictly permitted only ONE registered voter identity.");
+            }
         }
 
         // Generate Demo Voter ID and Masked Aadhaar if not specified
@@ -198,12 +214,17 @@ public class AuthService {
             String sessionToken = jwtService.generateTemporarySessionToken(cleanEmail, "OTP_VERIFY");
             LoginInitResponse resp = new LoginInitResponse("OTP_VERIFY", sessionToken, cleanEmail, user.getFullName(), hasFace, maskedMobile);
             resp.setDemoOtp(otpCode);
+            resp.setFaceImageUrl(user.getFaceImageUrl());
+            resp.setVoterIdNumber(user.getVoterIdNumber());
             return resp;
         }
 
         // Voter accounts require Face Verification
         String sessionToken = jwtService.generateTemporarySessionToken(cleanEmail, "FACE_VERIFY");
-        return new LoginInitResponse("FACE_VERIFY", sessionToken, cleanEmail, user.getFullName(), hasFace, maskedMobile);
+        LoginInitResponse resp = new LoginInitResponse("FACE_VERIFY", sessionToken, cleanEmail, user.getFullName(), hasFace, maskedMobile);
+        resp.setFaceImageUrl(user.getFaceImageUrl());
+        resp.setVoterIdNumber(user.getVoterIdNumber());
+        return resp;
     }
 
     @Transactional
@@ -236,9 +257,21 @@ public class AuthService {
             }
             userRepository.save(user);
             int remaining = 5 - attempts;
-            auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
-                    req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Face embedding similarity below threshold", "Unknown");
-            throw new FaceMatchException("Facial recognition mismatch. Your live camera face does not match the enrolled facial security profile (" + remaining + " attempts remaining). Please align face clearly and retake.");
+
+            // Check if this live face actually belongs to ANOTHER citizen enrolled in the database
+            List<FaceEmbedding> allEnrolled = faceEmbeddingRepository.findAllWithUser();
+            Optional<User> otherCitizen = faceService.findMatchingUserInDatabase(req.getLiveEmbedding(), allEnrolled, user.getId());
+
+            if (otherCitizen.isPresent()) {
+                User other = otherCitizen.get();
+                auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
+                        req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Face matches different user: " + other.getEmail(), "Unknown");
+                throw new FaceMatchException("Security Alert — Impersonation Detected! Your live face matches a different registered citizen (" + other.getFullName() + " / EPIC: " + other.getVoterIdNumber() + ") and NOT the enrolled photo in the database for " + user.getFullName() + ". Access is strictly denied (" + remaining + " attempts remaining).");
+            } else {
+                auditService.logLogin(cleanEmail, user, ipAddress, userAgent,
+                        req.getDeviceFingerprint(), LoginStatus.FAILED_FACE, "Face embedding does not match database photo", "Unknown");
+                throw new FaceMatchException("Facial Verification Error: Live camera face does not match the enrolled photo in the database for " + user.getFullName() + " (" + remaining + " attempts remaining). Access denied.");
+            }
         }
 
         // Facial security passed! Generate 6-digit OTP and send email
@@ -318,5 +351,16 @@ public class AuthService {
             return "******0000";
         }
         return "******" + mobile.substring(mobile.length() - 4);
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return "XXXX@XXXX.com";
+        String[] parts = email.split("@");
+        String name = parts[0];
+        String domain = parts[1];
+        if (name.length() <= 2) {
+            return name.charAt(0) + "***@" + domain;
+        }
+        return name.substring(0, 2) + "***" + name.charAt(name.length() - 1) + "@" + domain;
     }
 }

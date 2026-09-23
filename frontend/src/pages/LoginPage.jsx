@@ -21,6 +21,9 @@ export default function LoginPage() {
   const [sessionToken, setSessionToken] = useState(null);
   const [maskedMobile, setMaskedMobile] = useState('');
   const [demoOtp, setDemoOtp] = useState(null);
+  const [enrolledFaceImageUrl, setEnrolledFaceImageUrl] = useState(null);
+  const [voterFullName, setVoterFullName] = useState('');
+  const [voterIdNumber, setVoterIdNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -56,6 +59,9 @@ export default function LoginPage() {
         const data = res.data.data;
         setSessionToken(data.sessionToken);
         setMaskedMobile(data.maskedMobile);
+        setEnrolledFaceImageUrl(data.faceImageUrl || null);
+        setVoterFullName(data.fullName || '');
+        setVoterIdNumber(data.voterIdNumber || '');
         if (data.demoOtp) {
           setDemoOtp(data.demoOtp);
         }
@@ -242,18 +248,61 @@ export default function LoginPage() {
         {step === 2 && (
           <div>
             <div className="text-center mb-4">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[11px] font-mono mb-2">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>ECI BIOMETRIC ENGINE • 1-TO-1 DATABASE MATCH</span>
+              </div>
               <h2 className="text-xl font-bold text-white">Facial Security Verification</h2>
               <p className="text-xs text-slate-400 mt-1">
-                Position your face within the oval guide to verify against your enrolled electoral photo.
+                Live camera scan is strictly verified against your enrolled electoral photo in the database.
               </p>
             </div>
 
+            {/* Enrolled Voter Database Profile Card */}
+            <div className="mb-4 p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
+              <div className="flex items-center gap-3 min-w-0">
+                {enrolledFaceImageUrl ? (
+                  <div className="relative shrink-0">
+                    <img
+                      src={enrolledFaceImageUrl}
+                      alt="Enrolled Database Photo"
+                      className="w-12 h-12 rounded-lg object-cover border-2 border-emerald-500/50 shadow-sm"
+                    />
+                    <span className="absolute -bottom-1 -right-1 px-1 py-0.2 bg-emerald-600 text-[8px] font-mono text-white rounded font-bold">
+                      DB
+                    </span>
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 shrink-0">
+                    <Shield className="w-6 h-6" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-white truncate">
+                    {voterFullName || 'Enrolled Citizen'}
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-400 truncate">
+                    EPIC: <span className="text-slate-200">{voterIdNumber || 'IND-DL-8941205'}</span>
+                  </div>
+                  <div className="text-[10px] font-mono text-emerald-400 flex items-center gap-1 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Official Database Photo on Record</span>
+                  </div>
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                <span className="text-[10px] font-mono px-2 py-1 rounded bg-slate-900 border border-slate-700 text-cyan-300 block">
+                  Checking Match
+                </span>
+              </div>
+            </div>
+
             {errorMsg && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-950/80 border border-rose-500/50 flex items-start space-x-2.5 text-rose-200 text-xs text-left shadow-lg">
+              <div className="mb-4 p-3.5 rounded-xl bg-rose-950/90 border border-rose-500/60 flex items-start space-x-2.5 text-rose-200 text-xs text-left shadow-lg">
                 <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <p className="font-semibold text-rose-300">Facial Identity Unconfirmed</p>
-                  <p className="text-[11px] text-rose-200/90 leading-relaxed">{errorMsg}</p>
+                  <p className="font-semibold text-rose-300">Facial Security Alert — Verification Rejected</p>
+                  <p className="text-[11px] text-rose-100/90 leading-relaxed font-sans">{errorMsg}</p>
                 </div>
               </div>
             )}

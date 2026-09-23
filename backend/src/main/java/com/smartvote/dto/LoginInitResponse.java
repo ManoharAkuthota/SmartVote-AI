@@ -9,6 +9,8 @@ public class LoginInitResponse {
     private boolean faceEnrolled;
     private String maskedMobile;
     private String demoOtp;
+    private String faceImageUrl;
+    private String voterIdNumber;
 
     public LoginInitResponse() {
     }
@@ -20,6 +22,17 @@ public class LoginInitResponse {
         this.fullName = fullName;
         this.faceEnrolled = faceEnrolled;
         this.maskedMobile = maskedMobile;
+    }
+
+    public LoginInitResponse(String nextStep, String sessionToken, String email, String fullName, boolean faceEnrolled, String maskedMobile, String faceImageUrl, String voterIdNumber) {
+        this.nextStep = nextStep;
+        this.sessionToken = sessionToken;
+        this.email = email;
+        this.fullName = fullName;
+        this.faceEnrolled = faceEnrolled;
+        this.maskedMobile = maskedMobile;
+        this.faceImageUrl = faceImageUrl;
+        this.voterIdNumber = voterIdNumber;
     }
 
     public String getNextStep() {
@@ -76,5 +89,21 @@ public class LoginInitResponse {
 
     public void setDemoOtp(String demoOtp) {
         this.demoOtp = demoOtp;
+    }
+
+    public String getFaceImageUrl() {
+        return faceImageUrl;
+    }
+
+    public void setFaceImageUrl(String faceImageUrl) {
+        this.faceImageUrl = faceImageUrl;
+    }
+
+    public String getVoterIdNumber() {
+        return voterIdNumber;
+    }
+
+    public void setVoterIdNumber(String voterIdNumber) {
+        this.voterIdNumber = voterIdNumber;
     }
 }

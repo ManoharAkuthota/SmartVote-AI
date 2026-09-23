@@ -7,7 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.smartvote.entity.FaceEmbedding;
+import com.smartvote.entity.User;
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FaceService {
@@ -152,5 +156,29 @@ public class FaceService {
 
     public double getMaxDistanceThreshold() {
         return maxDistanceThreshold;
+    }
+
+    /**
+     * Checks a live embedding against a collection of enrolled database face embeddings.
+     * Returns the matching User if found, optionally excluding a specific user ID.
+     */
+    public Optional<User> findMatchingUserInDatabase(List<Double> liveEmbedding, List<FaceEmbedding> allEmbeddings, Long excludeUserId) {
+        if (liveEmbedding == null || liveEmbedding.isEmpty() || allEmbeddings == null || allEmbeddings.isEmpty()) {
+            return Optional.empty();
+        }
+
+        for (FaceEmbedding fe : allEmbeddings) {
+            if (fe == null || fe.getEmbeddingJson() == null || fe.getEmbeddingJson().isBlank()) {
+                continue;
+            }
+            if (excludeUserId != null && fe.getUser() != null && fe.getUser().getId().equals(excludeUserId)) {
+                continue;
+            }
+            if (isMatch(fe.getEmbeddingJson(), liveEmbedding)) {
+                return Optional.ofNullable(fe.getUser());
+            }
+        }
+
+        return Optional.empty();
     }
 }
